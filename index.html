@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM</title>
+    <title>AURELIAN NETWORK TERMINAL</title>
     <!-- Google Fonts using link instead of @import -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,7 @@
             background: #000;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -250,14 +251,15 @@
             to { width: 100%; }
         }
         
-        /* Main terminal - hidden initially */
+        /* Main content container */
         .main-content {
             opacity: 0;
             width: 100%;
             max-width: 800px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            margin-top: 20px;
         }
         
         /* Screen flicker */
@@ -278,6 +280,42 @@
             50% { 
                 text-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--primary-color), 0 0 30px var(--primary-color);
             }
+        }
+        
+        /* Large Profile Picture Above Terminal */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: textGlow 3s ease-in-out infinite;
+            width: 100%;
+        }
+        
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            filter: 
+                drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))
+                drop-shadow(0 0 15px var(--primary-glow));
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 2.5em;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px var(--primary-color);
+            margin-bottom: 10px;
+            color: var(--primary-color) !important; /* Always green in classic theme */
+        }
+        
+        body.amber-theme .profile-name {
+            color: var(--primary-color) !important; /* Stays amber in amber theme */
+        }
+        
+        .profile-tagline {
+            font-size: 1.1em;
+            color: var(--primary-dim) !important;
+            letter-spacing: 2px;
         }
         
         .terminal {
@@ -310,7 +348,6 @@
         .header {
             text-align: center;
             margin-bottom: clamp(20px, 5vw, 30px);
-            animation: textGlow 3s ease-in-out infinite;
         }
         
         .header h1 {
@@ -625,6 +662,19 @@
                 padding: 5px;
             }
             
+            .profile-pic {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .profile-name {
+                font-size: 2em;
+            }
+            
+            .profile-tagline {
+                font-size: 0.9em;
+            }
+            
             .terminal {
                 border-width: 2px;
                 padding: 15px;
@@ -658,6 +708,15 @@
         }
         
         @media (max-width: 380px) {
+            .profile-pic {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .profile-name {
+                font-size: 1.7em;
+            }
+            
             .header h1 {
                 letter-spacing: 1px;
             }
@@ -690,18 +749,18 @@
     <!-- Control Panel -->
     <div class="control-panel">
         <button class="control-btn" id="themeToggle">THEME: <span id="themeName">CLASSIC</span></button>
-        <button class="control-btn" id="radioToggle">📻 RADIO</button>
+        <button class="control-btn" id="radioToggle">RADIO</button>
     </div>
 
     <!-- Radio Player -->
     <div class="radio-player" id="radioPlayer">
-        <div class="radio-header">◈ WASTELAND RADIO ◈</div>
+        <div class="radio-header">WASTELAND RADIO</div>
         <div class="radio-stations">
             <button class="radio-station-btn" data-station="radio-new-vegas">
-                🎵 Radio New Vegas - Mr. New Vegas
+                Radio New Vegas - Mr. New Vegas
             </button>
             <button class="radio-station-btn" data-station="galaxy-news-radio">
-                🎵 Galaxy News Radio - Three Dog
+                Galaxy News Radio - Three Dog
             </button>
         </div>
         <div class="now-playing" id="nowPlaying">Select a station</div>
@@ -712,9 +771,17 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Large Profile Picture and Name Above Terminal -->
+        <div class="profile-header">
+            <img src="Watermark.png" alt="Aurelian Profile" class="profile-pic">
+            <br>
+            <div class="profile-name">AURELIAN</div>
+            <div class="profile-tagline">FALLOUT CONTENT CREATOR</div>
+        </div>
+        
         <div class="terminal">
-            <div class="boot-text">ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</div>
-            <div class="boot-text">PERSONNEL DATABASE ACCESS</div>
+            <div class="boot-text">AURELIAN NETWORK TERMINAL PROTOCOL</div>
+            <div class="boot-text">SOCIAL DATABANK ACCESS</div>
             
             <hr class="divider">
             
@@ -730,17 +797,14 @@
                 <div class="link-container">
                     <a href="https://www.youtube.com/@AurelianFO" class="link" target="_blank" rel="noopener">
                         <div class="link-title">YOUTUBE</div>
-                        <div class="link-desc">Video broadcasts and archives</div>
                     </a>
                     
                     <a href="https://www.tiktok.com/@aurelian_fo" class="link" target="_blank" rel="noopener">
                         <div class="link-title">TIKTOK</div>
-                        <div class="link-desc">Short-form transmissions</div>
                     </a>
                     
                     <a href="https://www.instagram.com/aurelian_fo/" class="link" target="_blank" rel="noopener">
                         <div class="link-title">INSTAGRAM</div>
-                        <div class="link-desc">Photo archives & updates</div>
                     </a>
                 </div>
             </div>
@@ -750,7 +814,7 @@
                 <div class="link-container">
                     
                     <a href="mailto:aurelianfallout@gmail.com" class="link">
-                        <div class="link-title">📧 EMAIL CONTACT</div>
+                        <div class="link-title">EMAIL CONTACT</div>
                         <div class="link-desc">Direct message protocol</div>
                     </a>
                 </div>
@@ -759,7 +823,8 @@
             <hr class="divider">
             
             <div class="footer">
-                SYSTEM STATUS: OPERATIONAL<span class="cursor"></span>
+                AURELIAN NETWORK STATUS: OPERATIONAL<span class="cursor"></span>
+                <div style="margin-top: 5px; font-size: 0.8em;">© AURELIAN NETWORK - ALL RIGHTS RESERVED</div>
             </div>
         </div>
     </div>
@@ -1252,6 +1317,40 @@
                 handleEnterClick();
             }
         });
+
+        // Get the tagline element
+        const tagline = document.querySelector('.profile-tagline');
+
+        // Array of Fallout quotes
+        const quotes = [
+            "WAR. WAR NEVER CHANGES.",
+            "PATROLLING THE MOJAVE ALMOST MAKES YOU WISH FOR A NUCLEAR WINTER.",
+            "THE GAME WAS RIGGED FROM THE START.",
+            "DEMOCRACY IS NON-NEGOTIABLE.",
+            "AIN'T THAT A KICK IN THE HEAD?",
+            "WE CAN'T EXPECT GOD TO DO ALL THE WORK.",
+            "BEGIN AGAIN, BUT KNOW WHEN TO LET GO.",
+            "THE HOUSE ALWAYS WINS.",
+            "AD VICTORIAM!",
+            "DEGENERATES LIKE YOU BELONG ON A CROSS.",
+            "I DON'T WANT TO SET THE WORLD ON FIRE.",
+            "WHAT IN THE GODDAMN...",
+            "TRUTH IS... THE GAME WAS RIGGED FROM THE START.",
+            "I DON'T ENJOY KILLING, BUT WHEN DONE RIGHTEOUSLY, IT'S JUST A CHORE.",
+            "IF YOU WANT TO SEE THE FATE OF DEMOCRACIES, LOOK OUT THE WINDOWS.",
+            "SMOOTHSKIN.",
+            "FOR THE GLORY OF THE BROTHERHOOD!",
+            "WHEN I GOT THIS ASSIGNMENT, I WAS HOPING THERE'D BE MORE GAMBLING.",
+            "THE FIRE INSIDE ME BURNS BRIGHTER THAN THE FIRE AROUND ME.",
+        ];
+
+        // Replace with random quote when page loads
+        if (tagline) {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            tagline.textContent = quotes[randomIndex];
+        }
+
+        
     </script>
 </body>
 </html>
