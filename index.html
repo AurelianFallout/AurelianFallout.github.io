@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AURELIAN NETWORK TERMINAL</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <!-- Google Fonts using link instead of @import -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -762,6 +763,9 @@
             <button class="radio-station-btn" data-station="galaxy-news-radio">
                 Galaxy News Radio - Three Dog
             </button>
+            <button class="radio-station-btn" data-station="diamond-city-radio">
+                Diamond City Radio - Travis Miles
+            </button>
         </div>
         <div class="now-playing" id="nowPlaying">Select a station</div>
         <div class="radio-controls">
@@ -976,6 +980,47 @@
             5358   // 1:29:18 - Happy Times by Bob Crosby and the Bobcats
         ];
 
+        // Diamond City Radio timeline (timestamps in seconds)
+        const diamondCityRadioTimestamps = [
+            0,      // 00:00 "A Wonderful Guy" by Tex Beneke
+            115,    // 01:55 "Ac-cent-tchu-ate the Positive" by Bing Crosby
+            277,    // 04:37 "Anything Goes" by Cole Porter
+            469,    // 07:49 "Atom Bomb Baby" by The Five Stars
+            608,    // 10:08 "Crazy He Calls Me" by Billie Holiday
+            793,    // 13:13 "Butcher Pete (Part 1)" by Roy Brown
+            942,    // 15:42 "Butcher Pete (Part 2)" by Roy Brown
+            1110,   // 18:30 "Civilization (Bongo,Bongo,Bongo)" by Vic Schoen
+            1296,   // 21:36 "Crawl Out Through the Fallout" by Sheldon Allman
+            1437,   // 23:57 "Dear Hearts and Gentle People" by Bob Crosby
+            1590,   // 26:30 "Easy Living" by Billie Holiday
+            1774,   // 29:34 "Good Rocking Tonight" by Roy Brown
+            1954,   // 32:34 "Grandma Plays the Numbers" by Wynonie Harris
+            2115,   // 35:15 "Happy Times" by Bob Crosby
+            2300,   // 38:20 "He's a Demon, He's a Devil, He's a Doll" by Betty Hutton
+            2494,   // 41:34 "I Don't Want to Set the World on Fire" by The Ink Spots
+            2680,   // 44:40 "Into Each Life Some Rain Must Fall" by Ella Fitzgerald
+            2870,   // 47:50 "It's a Man" by Betty Hutton
+            3014,   // 50:14 "It's All Over But the Crying" by The Ink Spots
+            3183,   // 53:03 "Keep A Knockin'" by Louis Jordan
+            3333,   // 55:33 "Maybe" by The Ink Spots
+            3519,   // 58:39 "Mighty, Mighty Man" by Roy Brown
+            3677,   // 1:01:17 "One More Tomorrow" by Marjorie Hughes
+            3876,   // 1:04:36 "Orange Colored Sky" by Stan Kenton
+            4027,   // 1:07:07 "Personality" by The Pied Pipers
+            4195,   // 1:09:55 "Pistol Packin' Mama" by Vic Schoen
+            4377,   // 1:12:57 "Right Behind You Baby" by Ray Smith
+            4523,   // 1:15:23 "Rocket 69" by Todd Rhodes
+            4689,   // 1:18:09 "Sixty Minute Man" by Billy Ward
+            4839,   // 1:20:39 "The End of the World" by Skeeter Davis
+            5000,   // 1:23:20 "The Wanderer" by Dion
+            5166,   // 1:26:06 "Undecided" by Chick Webb
+            5362,   // 1:29:22 "Uranium Fever" by Elton Britt
+            5502,   // 1:31:42 "Uranium Rock" by Warren Smith
+            5632,   // 1:33:52 "Way Back Home" by Bob Crosby
+            5811,   // 1:36:51 "Whole Lotta Shakin' Goin' On" by Big Maybelle
+            5979    // 1:39:39 "Worry Worry Worry" by The Three Suns
+        ];
+
         // Radio stations configuration with local files
         const stations = {
             'radio-new-vegas': {
@@ -991,6 +1036,13 @@
                 timestamps: galaxyNewsRadioTimestamps,
                 totalLength: 5523, // 1:23:03
                 displayName: 'Galaxy News Radio - Three Dog'
+            },
+            'diamond-city-radio': {
+            name: 'Diamond City Radio - Travis Miles',
+            audioFile: 'Assets/DCR.mp3',
+            timestamps: diamondCityRadioTimestamps,
+            totalLength: 6133, // 1:42:13
+            displayName: 'Diamond City Radio - Travis Miles'
             }
         };
 
@@ -1342,6 +1394,7 @@
             "FOR THE GLORY OF THE BROTHERHOOD!",
             "WHEN I GOT THIS ASSIGNMENT, I WAS HOPING THERE'D BE MORE GAMBLING.",
             "THE FIRE INSIDE ME BURNS BRIGHTER THAN THE FIRE AROUND ME.",
+            "THE PRESIDENT OF THE UNITED-FUCKING-STATES-OF-AMERICA. WHO'D YOU THINK I WAS TALKING ABOUT? WHO THE FU- WHO IS- WHAT- I SHOULD KICK YOUR FUCKING ASS, WHO IS THIS?"
         ];
 
         // Replace with random quote when page loads
