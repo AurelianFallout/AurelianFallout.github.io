@@ -823,7 +823,19 @@
                     </a>
                 </div>
             </div>
-            
+            <br>
+            <div class="content">
+                <div class="section">
+                    <h2>Latest Shorts</h2>
+                    <div id="shorts" class="shorts-grid"></div>
+                </div>
+                <br>
+                <div class="section">
+                    <h2>Latest Video</h2>
+                    <div id="video"></div>
+                </div>
+            </div>
+
             <hr class="divider">
             
             <div class="footer">
@@ -1429,6 +1441,133 @@
             const randomIndex = Math.floor(Math.random() * quotes.length);
             tagline.textContent = quotes[randomIndex];
         }
+
+        (async () => {
+            const feedUrl =
+                "https://www.youtube.com/feeds/videos.xml?channel_id=UCzWlkdjmrpyr4EHL2-6QTJQ";
+
+            const proxyUrl =
+                "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl) + "&_=" + Date.now();
+
+            const res = await fetch(proxyUrl);
+            const data = await res.json(); // AllOrigins wraps the XML in JSON
+            const xmlText = data.contents;
+
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlText, "application/xml");
+
+            const entries = [...xml.getElementsByTagName("entry")];
+            
+            // Clear existing content
+            document.getElementById("shorts").innerHTML = "";
+            document.getElementById("video").innerHTML = "";
+            
+            // Arrays to store filtered content
+            const shorts = [];
+            const fullVideos = [];
+            
+            // Process all entries to categorize them
+            for (let entry of entries) {
+                const videoIdEl = entry.getElementsByTagNameNS(
+                    "http://www.youtube.com/xml/schemas/2015",
+                    "videoId"
+                )[0];
+                
+                if (!videoIdEl) continue;
+                
+                const videoId = videoIdEl.textContent;
+                const descriptionEl = entry.getElementsByTagNameNS(
+                    "http://search.yahoo.com/mrss/",
+                    "description"
+                )[0];
+                
+                const description = descriptionEl ? descriptionEl.textContent : "";
+                const titleEl = entry.getElementsByTagName("title")[0];
+                const title = titleEl ? titleEl.textContent : "";
+                
+                // Check if it's a short by looking for hashtags in description
+                const hasHashtags = /#\w+/i.test(description);
+                
+                const videoData = {
+                    id: videoId,
+                    title: title,
+                    description: description,
+                    entry: entry
+                };
+                
+                if (hasHashtags) {
+                    shorts.push(videoData);
+                } else {
+                    fullVideos.push(videoData);
+                }
+            }
+            
+            // Load the 2 most recent shorts
+            const shortsContainer = document.getElementById("shorts");
+            const shortsToLoad = shorts.slice(0, 2);
+            
+            // Add CSS to make shorts display next to each other
+            shortsContainer.style.display = "flex";
+            shortsContainer.style.gap = "20px";
+            shortsContainer.style.justifyContent = "center";
+            shortsContainer.style.flexWrap = "wrap";
+            
+            shortsToLoad.forEach((short, index) => {
+                const container = document.createElement("div");
+                container.className = "short-container";
+                
+                const iframe = document.createElement("iframe");
+                iframe.width = "315";
+                iframe.height = "560";
+                iframe.src = `https://www.youtube.com/embed/${short.id}?rel=0&modestbranding=1`;
+                iframe.frameBorder = "0";
+                iframe.allow =
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+
+                iframe.onerror = () => {
+                    console.warn(`Short ${short.id} could not be embedded.`);
+                    iframe.remove();
+                };
+                
+                container.appendChild(iframe);
+                shortsContainer.appendChild(container);
+            });
+            
+            // Load the 1 most recent full-length video
+            const videoContainer = document.getElementById("video");
+            if (fullVideos.length > 0) {
+                const video = fullVideos[0];
+                const container = document.createElement("div");
+                container.className = "video-container";
+                
+                const iframe = document.createElement("iframe");
+                iframe.width = "560";
+                iframe.height = "315";
+                iframe.src = `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
+                iframe.frameBorder = "0";
+                iframe.allow =
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+
+                iframe.onerror = () => {
+                    console.warn(`Video ${video.id} could not be embedded.`);
+                    iframe.remove();
+                };
+                
+                container.appendChild(iframe);
+                videoContainer.appendChild(container);
+            } else {
+                videoContainer.innerHTML = "<p>No full-length videos found.</p>";
+            }
+            
+            // Optional: Log what we found
+            console.log(`Found ${shorts.length} shorts and ${fullVideos.length} full-length videos`);
+            console.log("Shorts:", shorts.map(s => s.id));
+            console.log("Full videos:", fullVideos.map(v => v.id));
+        })();
+
+
     </script>
 
 </body>
