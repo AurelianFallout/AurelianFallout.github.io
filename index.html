@@ -833,7 +833,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         // Random CRT glitch effect
         function triggerGlitch() {
             const terminal = document.querySelector('.terminal');
@@ -1028,21 +1028,24 @@
                 audioFile: 'Assets/RNV.mp3',
                 timestamps: radioNewVegasTimestamps,
                 totalLength: 3928, // 1:05:28
-                displayName: 'Radio New Vegas - Mr. New Vegas'
+                displayName: 'Radio New Vegas - Mr. New Vegas',
+                lastPosition: 0
             },
             'galaxy-news-radio': {
                 name: 'Galaxy News Radio - Three Dog',
                 audioFile: 'Assets/GNR.mp3',
                 timestamps: galaxyNewsRadioTimestamps,
                 totalLength: 5523, // 1:23:03
-                displayName: 'Galaxy News Radio - Three Dog'
+                displayName: 'Galaxy News Radio - Three Dog',
+                lastPosition: 0
             },
             'diamond-city-radio': {
-            name: 'Diamond City Radio - Travis Miles',
-            audioFile: 'Assets/DCR.mp3',
-            timestamps: diamondCityRadioTimestamps,
-            totalLength: 6133, // 1:42:13
-            displayName: 'Diamond City Radio - Travis Miles'
+                name: 'Diamond City Radio - Travis Miles',
+                audioFile: 'Assets/DCR.mp3',
+                timestamps: diamondCityRadioTimestamps,
+                totalLength: 6133, // 1:42:13
+                displayName: 'Diamond City Radio - Travis Miles',
+                lastPosition: 0
             }
         };
 
@@ -1099,8 +1102,11 @@
                 if (audioPlayer && !audioPlayer.paused) {
                     try {
                         totalElapsedSeconds = startTime + Math.floor(audioPlayer.currentTime);
+                        // Update stored position for current station
+                        if (currentStation) {
+                            stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
+                        }
                     } catch(e) {
-                        // Fallback to simple timer
                         totalElapsedSeconds++;
                     }
                 }
@@ -1125,8 +1131,9 @@
             
             // Show station name and current time
             const station = stations[currentStation];
-            const minutes = Math.floor(totalElapsedSeconds / 60);
-            const seconds = totalElapsedSeconds % 60;
+            const currentTime = Math.floor(audioPlayer ? audioPlayer.currentTime : totalElapsedSeconds);
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = currentTime % 60;
             const paddedSeconds = seconds.toString().padStart(2, '0');
             
             nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
@@ -1151,7 +1158,8 @@
                         updateTrackDisplay();
                         console.log(`Radio resumed: ${station.name}`);
                     } else {
-                        // Pause playback
+                        // Pause playback and store position
+                        stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
                         audioPlayer.pause();
                         isPlaying = false;
                         stationButtons.forEach(btn => {
@@ -1166,18 +1174,29 @@
                 return;
             }
             
-            // Get start time (either continue from previous or random)
+            // Store current position before switching (for current station)
+            if (currentStation && audioPlayer) {
+                // Stop the time tracker first
+                if (elapsedTimeInterval) {
+                    clearInterval(elapsedTimeInterval);
+                    elapsedTimeInterval = null;
+                }
+                
+                // Store the EXACT current time from the audio player
+                stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
+                console.log(`Stored position for ${currentStation}: ${stations[currentStation].lastPosition} seconds`);
+            }
+            
+            // Get start time - check if we have a last position for this station
             let startSeconds = 0;
-            if (currentStationData && currentStationData.timestamps && totalElapsedSeconds > 0 && audioPlayer && !audioPlayer.paused) {
-                // Continue from where we left off in the previous station
-                const progress = totalElapsedSeconds % currentStationData.totalLength;
-                const normalizedProgress = progress / currentStationData.totalLength;
-                startSeconds = Math.floor(normalizedProgress * station.totalLength);
-                console.log(`Switching stations, continuing from ${startSeconds} seconds in new station`);
+            if (station.lastPosition && station.lastPosition > 0) {
+                // Resume from last known position (modulo to handle looping)
+                startSeconds = station.lastPosition % station.totalLength;
+                console.log(`Resuming ${station.name} from stored position: ${startSeconds} seconds`);
             } else {
-                // Start at random time
+                // Start at random time for first time
                 startSeconds = getRandomStartTime(station.timestamps);
-                console.log(`Starting radio at random time: ${startSeconds} seconds`);
+                console.log(`Starting ${station.name} at random time: ${startSeconds} seconds`);
             }
             
             // Stop previous station UI
@@ -1199,7 +1218,8 @@
                 });
                 
                 audioPlayer.addEventListener('ended', function() {
-                    // Loop the audio
+                    // Loop the audio - reset stored position
+                    station.lastPosition = 0;
                     audioPlayer.currentTime = 0;
                     startTime = 0;
                     totalElapsedSeconds = 0;
@@ -1224,6 +1244,9 @@
             totalElapsedSeconds = startSeconds;
             isPlaying = true;
             
+            // Reset and start fresh time tracker
+            startElapsedTimeTracker();
+            
             // Mark as playing
             stationButtons.forEach(btn => {
                 if (btn.getAttribute('data-station') === stationKey) {
@@ -1235,14 +1258,11 @@
             currentStation = stationKey;
             currentStationData = station;
             
-            // Start time tracking
-            startElapsedTimeTracker();
-            
             // Show station name
             const minutes = Math.floor(startSeconds / 60);
             const seconds = startSeconds % 60;
             const paddedSeconds = seconds.toString().padStart(2, '0');
-            nowPlaying.textContent = `♫ ${station.displayName} (Started at ${minutes}:${paddedSeconds})`;
+            nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
             console.log(`Playing ${station.name} from ${minutes}:${paddedSeconds}`);
         }
 
@@ -1347,6 +1367,13 @@
                 // Start time tracking
                 startElapsedTimeTracker();
                 
+                // Mark as playing
+                stationButtons.forEach(btn => {
+                    if (btn.getAttribute('data-station') === stationKey) {
+                        btn.classList.add('playing');
+                    }
+                });
+                
                 console.log(`Radio playing from ${Math.floor(startSeconds/60)}:${(startSeconds%60).toString().padStart(2,'0')}`);
                 
             }).catch(e => {
@@ -1402,8 +1429,7 @@
             const randomIndex = Math.floor(Math.random() * quotes.length);
             tagline.textContent = quotes[randomIndex];
         }
-
-        
     </script>
+
 </body>
 </html>
