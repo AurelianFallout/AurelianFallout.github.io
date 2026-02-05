@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM</title>
+    <!-- Google Fonts using link instead of @import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #33ff33;
+            --primary-glow: rgba(51, 255, 51, 0.3);
+            --primary-dim: #22dd22;
+            --secondary-color: #ffff00;
+            --theme-name: "CLASSIC GREEN";
+        }
+        
+        body.amber-theme {
+            --primary-color: #ffb000;
+            --primary-glow: rgba(255, 176, 0, 0.3);
+            --primary-dim: #cc8800;
+            --secondary-color: #ff6600;
+            --theme-name: "MOJAVE AMBER";
+        }
+        
+        /* Force all text to inherit theme colors */
+        body, body * {
+            color: var(--primary-color) !important;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        /* Special cases that need different colors */
+        .section-title,
+        .section-title * {
+            color: var(--secondary-color) !important;
+        }
+        
+        .link-desc,
+        .header .subtitle,
+        .footer,
+        .boot-text,
+        .now-playing {
+            color: var(--primary-dim) !important;
+        }
+        
+        .access-granted {
+            color: var(--secondary-color) !important;
+        }
+        
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+            margin: 0;
+        }
+        
+        /* CRT Glitch Effect */
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+        
+        @keyframes glitchColor {
+            0% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            14% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            100% {
+                text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+        }
+        
+        .glitch-active {
+            animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both,
+                       glitchColor 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+        
+        /* CRT scanline effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* CRT Curvature overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        /* Login screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+        
+        .login-content {
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .login-title {
+            font-size: clamp(1.2em, 4vw, 1.8em);
+            margin-bottom: 20px;
+            animation: textGlow 2s ease-in-out infinite;
+            letter-spacing: 3px;
+        }
+        
+        .login-line {
+            font-size: clamp(0.8em, 2.5vw, 1em);
+            margin: 8px 0;
+            opacity: 0;
+            animation: fadeInText 0.3s ease-in forwards;
+        }
+        
+        .login-line:nth-child(2) { animation-delay: 0.3s; }
+        .login-line:nth-child(3) { animation-delay: 0.8s; }
+        .login-line:nth-child(4) { animation-delay: 1.3s; }
+        .login-line:nth-child(5) { animation-delay: 1.8s; }
+        
+        .password-input {
+            display: inline-block;
+            margin-left: 10px;
+            animation: typing 0.5s steps(8) 0.8s forwards;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+        }
+        
+        @keyframes typing {
+            to { width: 80px; }
+        }
+        
+        .access-granted {
+            color: var(--secondary-color) !important;
+            font-size: clamp(1em, 3vw, 1.3em);
+            text-shadow: 0 0 20px var(--secondary-color);
+        }
+        
+        .loading-bar {
+            width: 80%;
+            max-width: 400px;
+            height: 20px;
+            border: 2px solid var(--primary-color);
+            margin: 20px auto;
+            position: relative;
+            opacity: 0;
+            animation: fadeInText 0.3s ease-in 2.3s forwards;
+        }
+        
+        .loading-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0;
+            animation: loadBar 0.7s ease-out 2.3s forwards;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+        
+        @keyframes loadBar {
+            to { width: 100%; }
+        }
+        
+        /* Main terminal - hidden initially */
+        .main-content {
+            opacity: 0;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Screen flicker */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.98; }
+            15% { opacity: 0.96; }
+            20% { opacity: 0.97; }
+            100% { opacity: 0.97; }
+        }
+        
+        /* Text glow */
+        @keyframes textGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+            }
+            50% { 
+                text-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--primary-color), 0 0 30px var(--primary-color);
+            }
+        }
+        
+        .terminal {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 20, 0, 0.95);
+            border: 3px solid var(--primary-color);
+            border-radius: 5px;
+            padding: clamp(15px, 4vw, 40px);
+            box-shadow: 
+                0 0 20px var(--primary-glow),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
+            animation: flicker 5s infinite;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }
+        
+        .terminal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: clamp(20px, 5vw, 30px);
+            animation: textGlow 3s ease-in-out infinite;
+        }
+        
+        .header h1 {
+            font-size: clamp(1em, 3.5vw, 1.3em);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            line-height: 1.4;
+        }
+        
+        .header .subtitle {
+            font-size: clamp(0.75em, 2.5vw, 0.9em);
+            line-height: 1.4;
+        }
+        
+        .divider {
+            border: none;
+            border-top: 1px solid var(--primary-color);
+            margin: clamp(15px, 4vw, 20px) 0;
+            box-shadow: 0 0 5px var(--primary-color);
+        }
+        
+        .section {
+            margin: clamp(20px, 5vw, 25px) 0;
+        }
+        
+        .section-title {
+            font-size: clamp(0.95em, 3vw, 1.1em);
+            margin-bottom: clamp(12px, 3vw, 15px);
+            text-shadow: 0 0 10px var(--secondary-color);
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .section-title::before {
+            content: "> ";
+        }
+        
+        .link-container {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 3vw, 12px);
+        }
+        
+        .link {
+            display: block;
+            padding: clamp(15px, 4vw, 16px) clamp(15px, 4vw, 20px);
+            background: var(--primary-glow);
+            border: 2px solid var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+            text-decoration: none;
+            color: var(--primary-color) !important;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .link::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            transition: left 0.3s ease;
+        }
+        
+        .link:hover::before,
+        .link:active::before {
+            left: 0;
+        }
+        
+        .link:hover,
+        .link:active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-width: 8px;
+            box-shadow: 0 0 15px var(--primary-glow);
+            transform: scale(1.02);
+        }
+        
+        .link-title {
+            font-size: clamp(0.95em, 3.5vw, 1.1em);
+            margin-bottom: 5px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .link-desc {
+            font-size: clamp(0.75em, 2.5vw, 0.85em);
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: clamp(20px, 5vw, 30px);
+            font-size: clamp(0.7em, 2.5vw, 0.8em);
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1em;
+            background: var(--primary-color);
+            animation: blink 1s step-end infinite;
+            margin-left: 5px;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .boot-text {
+            margin-bottom: 10px;
+            font-size: clamp(0.75em, 2.5vw, 0.9em);
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            background: rgba(0, 20, 0, 0.95);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color) !important;
+            padding: 12px 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(0.75em, 2.2vw, 0.85em);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--primary-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .control-btn:hover {
+            background: var(--primary-glow);
+            box-shadow: 0 0 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Radio Player */
+        .radio-player {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            background: rgba(0, 20, 0, 0.98);
+            border: 3px solid var(--primary-color);
+            padding: 15px;
+            box-shadow: 0 0 20px var(--primary-glow);
+            display: none;
+            max-width: calc(100% - 20px);
+            width: 500px;
+        }
+        
+        .radio-player.active {
+            display: block;
+        }
+        
+        .radio-header {
+            text-align: center;
+            font-size: clamp(0.9em, 2.5vw, 1em);
+            margin-bottom: 15px;
+            color: var(--secondary-color) !important;
+            text-shadow: 0 0 10px var(--secondary-color);
+        }
+        
+        .radio-stations {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .radio-station-btn {
+            background: var(--primary-glow);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color) !important;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(0.8em, 2.2vw, 0.85em);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .radio-station-btn:hover,
+        .radio-station-btn.playing {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        
+        .radio-controls {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--primary-color);
+        }
+        
+        .close-radio {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color) !important;
+            padding: 5px 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        
+        .close-radio:hover {
+            background: var(--primary-glow);
+        }
+        
+        .now-playing {
+            font-size: 0.75em;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        /* ENTER Button */
+        .enter-btn {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 15px 30px;
+            margin-top: 30px;
+            cursor: pointer;
+            font-size: clamp(0.9em, 2.5vw, 1.1em);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: pulse 1.5s infinite;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .enter-btn:hover {
+            background: var(--primary-glow);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+        
+        .enter-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(51, 255, 51, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(51, 255, 51, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(51, 255, 51, 0);
+            }
+        }
+        
+        body.amber-theme .enter-btn {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        body.amber-theme .enter-btn:hover {
+            background: var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+        
+        /* Extra mobile optimization */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            
+            .terminal {
+                border-width: 2px;
+                padding: 15px;
+            }
+            
+            .link {
+                min-height: 75px;
+            }
+            
+            .section-title {
+                word-break: break-word;
+            }
+            
+            .control-panel {
+                top: 5px;
+                right: 5px;
+                gap: 6px;
+            }
+            
+            .control-btn {
+                padding: 10px 12px;
+                font-size: 0.75em;
+                min-height: 40px;
+            }
+            
+            .radio-player {
+                bottom: 5px;
+                padding: 12px;
+                width: calc(100% - 10px);
+            }
+        }
+        
+        @media (max-width: 380px) {
+            .header h1 {
+                letter-spacing: 1px;
+            }
+            
+            .link-title {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Animation Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-content">
+            <div class="login-title">ROBCO INDUSTRIES (TM) TERMLINK</div>
+            <div class="login-line">INITIALIZING SYSTEM...</div>
+            <div class="login-line">ENTER PASSWORD:<span class="password-input">********</span></div>
+            <div class="login-line">VERIFYING CREDENTIALS...</div>
+            <div class="login-line access-granted">>>> ACCESS GRANTED <<<</div>
+            <div class="loading-bar">
+                <div class="loading-fill"></div>
+            </div>
+            <!-- Add ENTER button -->
+            <button class="enter-btn" id="enterBtn" style="display: none;">
+                [PRESS ENTER TO CONTINUE]
+            </button>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <button class="control-btn" id="themeToggle">THEME: <span id="themeName">CLASSIC</span></button>
+        <button class="control-btn" id="radioToggle">📻 RADIO</button>
+    </div>
+
+    <!-- Radio Player -->
+    <div class="radio-player" id="radioPlayer">
+        <div class="radio-header">◈ WASTELAND RADIO ◈</div>
+        <div class="radio-stations">
+            <button class="radio-station-btn" data-station="radio-new-vegas">
+                🎵 Radio New Vegas - Mr. New Vegas
+            </button>
+            <button class="radio-station-btn" data-station="galaxy-news-radio">
+                🎵 Galaxy News Radio - Three Dog
+            </button>
+        </div>
+        <div class="now-playing" id="nowPlaying">Select a station</div>
+        <div class="radio-controls">
+            <button class="close-radio" id="closeRadio">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="terminal">
+            <div class="boot-text">ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</div>
+            <div class="boot-text">PERSONNEL DATABASE ACCESS</div>
+            
+            <hr class="divider">
+            
+            <div class="header">
+                <h1>USER PROFILE LOADED</h1>
+                <p class="subtitle">SOCIAL NETWORK DATABANK /// LINK DIRECTORY</p>
+            </div>
+            
+            <hr class="divider">
+            
+            <div class="section">
+                <div class="section-title">PRIMARY CHANNELS</div>
+                <div class="link-container">
+                    <a href="https://www.youtube.com/@AurelianFO" class="link" target="_blank" rel="noopener">
+                        <div class="link-title">YOUTUBE</div>
+                        <div class="link-desc">Video broadcasts and archives</div>
+                    </a>
+                    
+                    <a href="https://www.tiktok.com/@aurelian_fo" class="link" target="_blank" rel="noopener">
+                        <div class="link-title">TIKTOK</div>
+                        <div class="link-desc">Short-form transmissions</div>
+                    </a>
+                    
+                    <a href="https://www.instagram.com/aurelian_fo/" class="link" target="_blank" rel="noopener">
+                        <div class="link-title">INSTAGRAM</div>
+                        <div class="link-desc">Photo archives & updates</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">ADDITIONAL PROTOCOLS</div>
+                <div class="link-container">
+                    
+                    <a href="mailto:aurelianfallout@gmail.com" class="link">
+                        <div class="link-title">📧 EMAIL CONTACT</div>
+                        <div class="link-desc">Direct message protocol</div>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="divider">
+            
+            <div class="footer">
+                SYSTEM STATUS: OPERATIONAL<span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Random CRT glitch effect
+        function triggerGlitch() {
+            const terminal = document.querySelector('.terminal');
+            if (terminal && Math.random() < 0.3) { // 30% chance
+                terminal.classList.add('glitch-active');
+                setTimeout(() => {
+                    terminal.classList.remove('glitch-active');
+                }, 300);
+            }
+        }
+
+        // Trigger glitch randomly every 8-15 seconds
+        function scheduleRandomGlitch() {
+            const delay = Math.random() * 7000 + 8000; // 8-15 seconds
+            setTimeout(() => {
+                triggerGlitch();
+                scheduleRandomGlitch();
+            }, delay);
+        }
+
+        // Start glitch effect after page loads
+        setTimeout(() => {
+            scheduleRandomGlitch();
+        }, 5000);
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeName = document.getElementById('themeName');
+        let currentTheme = 'classic';
+
+        themeToggle.addEventListener('click', () => {
+            if (currentTheme === 'classic') {
+                document.body.classList.add('amber-theme');
+                themeName.textContent = 'MOJAVE';
+                currentTheme = 'amber';
+            } else {
+                document.body.classList.remove('amber-theme');
+                themeName.textContent = 'CLASSIC';
+                currentTheme = 'classic';
+            }
+            
+            // Trigger glitch on theme change
+            const terminal = document.querySelector('.terminal');
+            if (terminal) {
+                terminal.classList.add('glitch-active');
+                setTimeout(() => {
+                    terminal.classList.remove('glitch-active');
+                }, 300);
+            }
+        });
+
+        // Radio Player with HTML5 Audio API
+        const radioToggle = document.getElementById('radioToggle');
+        const radioPlayer = document.getElementById('radioPlayer');
+        const closeRadio = document.getElementById('closeRadio');
+        const stationButtons = document.querySelectorAll('.radio-station-btn');
+        const nowPlaying = document.getElementById('nowPlaying');
+
+        // Complete Radio New Vegas timeline (timestamps in seconds)
+        const radioNewVegasTimestamps = [
+            1,     // 0:01 Mr. New Vegas
+            46,    // 0:46 Blue Moon by Frank Sinatra
+            216,   // 3:36 Mr. New Vegas
+            272,   // 4:32 Manhattan by Gerhard Trede
+            353,   // 5:53 Mr. New Vegas
+            408,   // 6:48 Mad About The Boy by Dinah Washington
+            537,   // 8:57 Mr. New Vegas
+            579,   // 9:39 Von Spanien Nach Südamerika by Gerhard Trede
+            684,   // 11:24 Mr. New Vegas
+            745,   // 12:25 Heartache by The Numbers sung by Guy Mitchell
+            896,   // 14:56 Mr. New Vegas
+            955,   // 15:55 Where Have You Been All My Life by Hal Davis and John Cacavas
+            1130,  // 18:50 Mr. New Vegas
+            1217,  // 20:17 Ain't That a Kick in the Head by Deana Martin
+            1362,  // 22:42 Mr. New Vegas
+            1423,  // 23:43 Why Don't You Do Right by Peggy Lee
+            1625,  // 27:05 Mr. New Vegas
+            1679,  // 27:59 Strahlende Trompete by Gerhard Trede
+            1863,  // 31:03 Mr. New Vegas
+            1920,  // 32:00 Sit and Dream by Pete Thomas
+            2008,  // 33:28 Mr. New Vegas
+            2061,  // 34:21 It's a Sin to Tell a Lie by The Ink Spots
+            2202,  // 36:42 Mr. New Vegas
+            2261,  // 37:41 Hallo Mister X by Gerhard Trede
+            2390,  // 39:50 Mr. New Vegas
+            2447,  // 40:47 Jingle Jangle Jingle by Kay Kyser
+            2647,  // 44:07 Mr. New Vegas
+            2692,  // 44:52 Big Iron by Marty Robbins
+            2930,  // 48:50 Mr. New Vegas
+            2994,  // 49:54 Something's Gotta Give sung by Bill Crosby
+            3116,  // 51:56 Mr. New Vegas
+            3150,  // 52:30 Honorable News Mention
+            3173,  // 52:53 Slow Bounce by Gerhard Trede
+            3286,  // 54:46 Mr. New Vegas
+            3342,  // 55:42 Johnny Guitar by Peggy Lee
+            3521,  // 58:41 Mr. New Vegas
+            3566,  // 59:26 American Swing by Gerhard Trede
+            3661,  // 1:01:01 Mr. New Vegas
+            3716,  // 1:01:56 Love Me As Though There Were No Tomorrow by Nat King Cole
+            3870   // 1:04:30 Mr. New Vegas
+        ];
+
+        // Complete Galaxy News Radio timeline (timestamps in seconds)
+        const galaxyNewsRadioTimestamps = [
+            0,     // 0:00 - Three Dog
+            115,   // 1:55 - I Don't Want To Set The World On Fire by The Ink Spots
+            300,   // 5:00 - Three Dog
+            367,   // 6:07 - Crazy He Calls Me by Billie Holiday
+            550,   // 9:10 - Three Dog
+            640,   // 10:40 - Fox Boogie by Gerhard Trede
+            836,   // 13:56 - Three Dog (Herbert Daring Dashwood)
+            1060,  // 17:40 - Mighty Mighty Man by Roy Brown
+            1214,  // 20:14 - Three Dog
+            1340,  // 22:20 - Way Back Home by Bob Crosby
+            1512,  // 25:12 - Three Dog
+            1614,  // 26:54 - I'm Tickled Pink by Jack Shaindlin Dance Orchestra
+            1724,  // 28:44 - Three Dog
+            1798,  // 29:58 - Jazzy Interlude by Billy Munn
+            1968,  // 32:48 - Three Dog (Herbert Daring Dashwood)
+            2225,  // 37:05 - A Wonderful Guy by Tex Beneke
+            2338,  // 38:58 - Three Dog
+            2446,  // 40:46 - Rhythm For You by Eddy Christiani
+            2626,  // 43:46 - Three Dog
+            2721,  // 45:21 - Civilization (Bongo Bongo Bongo) by Andrews Sisters|Danny Kaye
+            2903,  // 48:23 - Three Dog (short, just a couple seconds)
+            2906,  // 48:26 - Boogie Man by Sid Phillips
+            3049,  // 50:49 - Three Dog (Herbert Daring Dashwood)
+            3265,  // 54:25 - Anything Goes by Cole Porter
+            3453,  // 57:33 - Three Dog
+            3512,  // 58:32 - Let's Go Sunning by Jack Shaindlin Dance Orchestra
+            3614,  // 1:00:14 - Three Dog
+            3663,  // 1:01:03 - Into Each Life Some Rain Must Fall by The Ink Spots|Ella Fitzgerald
+            3851,  // 1:04:11 - Three Dog
+            3982,  // 1:06:22 - Swing Doors by Allan Gray
+            4162,  // 1:09:22 - Three Dog (Herbert Daring Dashwood)
+            4404,  // 1:13:24 - Maybe by The Ink Spots
+            4576,  // 1:16:16 - Three Dog
+            4657,  // 1:17:37 - Easy Living by Billie Holiday
+            4841,  // 1:20:41 - Three Dog
+            4899,  // 1:21:39 - Jolly Days by Gerhard Trede
+            4998,  // 1:23:18 - Three Dog
+            5108,  // 1:25:08 - Butcher Pete by Roy Brown
+            5256,  // 1:27:36 - Three Dog
+            5358   // 1:29:18 - Happy Times by Bob Crosby and the Bobcats
+        ];
+
+        // Radio stations configuration with local files
+        const stations = {
+            'radio-new-vegas': {
+                name: 'Radio New Vegas - Mr. New Vegas',
+                audioFile: 'Assets/RNV.mp3',
+                timestamps: radioNewVegasTimestamps,
+                totalLength: 3928, // 1:05:28
+                displayName: 'Radio New Vegas - Mr. New Vegas'
+            },
+            'galaxy-news-radio': {
+                name: 'Galaxy News Radio - Three Dog',
+                audioFile: 'Assets/GNR.mp3',
+                timestamps: galaxyNewsRadioTimestamps,
+                totalLength: 5523, // 1:23:03
+                displayName: 'Galaxy News Radio - Three Dog'
+            }
+        };
+
+        // Global audio player
+        let audioPlayer = null;
+        let currentStation = null;
+        let currentStationData = null;
+        let isPlaying = false;
+        let startTime = 0;
+        let elapsedTimeInterval = null;
+        let totalElapsedSeconds = 0;
+
+        // Get a random start time from the timestamps array
+        function getRandomStartTime(timestamps) {
+            // Start at a random track but not at the very end
+            const maxIndex = timestamps.length - 5; // Leave some room
+            const randomIndex = Math.floor(Math.random() * maxIndex);
+            return timestamps[randomIndex];
+        }
+
+        // Get current track info based on elapsed time
+        function getCurrentTrack(elapsedSeconds, stationTimestamps) {
+            for (let i = stationTimestamps.length - 1; i >= 0; i--) {
+                if (elapsedSeconds >= stationTimestamps[i]) {
+                    if (i === stationTimestamps.length - 1) {
+                        // At the end of the playlist, loop back to start
+                        return {
+                            currentTrackIndex: 0,
+                            timeIntoCurrentTrack: elapsedSeconds % stationTimestamps[stationTimestamps.length - 1]
+                        };
+                    }
+                    
+                    const nextTimestamp = stationTimestamps[i + 1];
+                    return {
+                        currentTrackIndex: i,
+                        timeIntoCurrentTrack: elapsedSeconds - stationTimestamps[i],
+                        timeUntilNextTrack: nextTimestamp - elapsedSeconds
+                    };
+                }
+            }
+            return {
+                currentTrackIndex: 0,
+                timeIntoCurrentTrack: elapsedSeconds
+            };
+        }
+
+        // Start tracking elapsed time
+        function startElapsedTimeTracker() {
+            if (elapsedTimeInterval) {
+                clearInterval(elapsedTimeInterval);
+            }
+            
+            elapsedTimeInterval = setInterval(() => {
+                if (audioPlayer && !audioPlayer.paused) {
+                    try {
+                        totalElapsedSeconds = startTime + Math.floor(audioPlayer.currentTime);
+                    } catch(e) {
+                        // Fallback to simple timer
+                        totalElapsedSeconds++;
+                    }
+                }
+                
+                // Update display only when radio panel is open
+                if (radioPlayer.classList.contains('active')) {
+                    updateTrackDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTrackDisplay() {
+            if (!currentStation) {
+                nowPlaying.textContent = 'Select a station';
+                return;
+            }
+            
+            if (audioPlayer && audioPlayer.paused) {
+                nowPlaying.textContent = stations[currentStation].displayName + ' (Paused)';
+                return;
+            }
+            
+            // Show station name and current time
+            const station = stations[currentStation];
+            const minutes = Math.floor(totalElapsedSeconds / 60);
+            const seconds = totalElapsedSeconds % 60;
+            const paddedSeconds = seconds.toString().padStart(2, '0');
+            
+            nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
+        }
+
+        // Load and play a station
+        function toggleStation(stationKey) {
+            const station = stations[stationKey];
+            
+            // If clicking the same station that's currently playing
+            if (currentStation === stationKey) {
+                if (audioPlayer) {
+                    if (audioPlayer.paused) {
+                        // Resume playback
+                        audioPlayer.play().catch(e => console.error('Play failed:', e));
+                        isPlaying = true;
+                        stationButtons.forEach(btn => {
+                            if (btn.getAttribute('data-station') === stationKey) {
+                                btn.classList.add('playing');
+                            }
+                        });
+                        updateTrackDisplay();
+                        console.log(`Radio resumed: ${station.name}`);
+                    } else {
+                        // Pause playback
+                        audioPlayer.pause();
+                        isPlaying = false;
+                        stationButtons.forEach(btn => {
+                            if (btn.getAttribute('data-station') === stationKey) {
+                                btn.classList.remove('playing');
+                            }
+                        });
+                        updateTrackDisplay();
+                        console.log(`Radio paused: ${station.name}`);
+                    }
+                }
+                return;
+            }
+            
+            // Get start time (either continue from previous or random)
+            let startSeconds = 0;
+            if (currentStationData && currentStationData.timestamps && totalElapsedSeconds > 0 && audioPlayer && !audioPlayer.paused) {
+                // Continue from where we left off in the previous station
+                const progress = totalElapsedSeconds % currentStationData.totalLength;
+                const normalizedProgress = progress / currentStationData.totalLength;
+                startSeconds = Math.floor(normalizedProgress * station.totalLength);
+                console.log(`Switching stations, continuing from ${startSeconds} seconds in new station`);
+            } else {
+                // Start at random time
+                startSeconds = getRandomStartTime(station.timestamps);
+                console.log(`Starting radio at random time: ${startSeconds} seconds`);
+            }
+            
+            // Stop previous station UI
+            stationButtons.forEach(btn => btn.classList.remove('playing'));
+            
+            // Create or update audio player
+            if (!audioPlayer) {
+                audioPlayer = new Audio(station.audioFile);
+                
+                // Set up event listeners
+                audioPlayer.addEventListener('canplaythrough', function() {
+                    console.log(`Audio loaded: ${station.name}`);
+                });
+                
+                audioPlayer.addEventListener('error', function(e) {
+                    console.error('Audio error:', e);
+                    nowPlaying.textContent = 'Error loading station';
+                    stationButtons.forEach(btn => btn.classList.remove('playing'));
+                });
+                
+                audioPlayer.addEventListener('ended', function() {
+                    // Loop the audio
+                    audioPlayer.currentTime = 0;
+                    startTime = 0;
+                    totalElapsedSeconds = 0;
+                    audioPlayer.play().catch(e => console.error('Loop play failed:', e));
+                });
+            } else {
+                // Change source of existing player
+                audioPlayer.src = station.audioFile;
+            }
+            
+            // Set volume to 70%
+            audioPlayer.volume = 0.7;
+            
+            // Set start time and play
+            audioPlayer.currentTime = startSeconds;
+            audioPlayer.play().catch(e => {
+                console.error('Playback failed:', e);
+            });
+            
+            // Update tracking
+            startTime = startSeconds;
+            totalElapsedSeconds = startSeconds;
+            isPlaying = true;
+            
+            // Mark as playing
+            stationButtons.forEach(btn => {
+                if (btn.getAttribute('data-station') === stationKey) {
+                    btn.classList.add('playing');
+                }
+            });
+            
+            // Update current station
+            currentStation = stationKey;
+            currentStationData = station;
+            
+            // Start time tracking
+            startElapsedTimeTracker();
+            
+            // Show station name
+            const minutes = Math.floor(startSeconds / 60);
+            const seconds = startSeconds % 60;
+            const paddedSeconds = seconds.toString().padStart(2, '0');
+            nowPlaying.textContent = `♫ ${station.displayName} (Started at ${minutes}:${paddedSeconds})`;
+            console.log(`Playing ${station.name} from ${minutes}:${paddedSeconds}`);
+        }
+
+        // Event listeners for station buttons
+        stationButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const stationKey = button.getAttribute('data-station');
+                toggleStation(stationKey);
+            });
+        });
+
+        // Radio toggle
+        radioToggle.addEventListener('click', () => {
+            const wasActive = radioPlayer.classList.contains('active');
+            radioPlayer.classList.toggle('active');
+            
+            // Pick random station when opening radio
+            if (!wasActive && radioPlayer.classList.contains('active')) {
+                // Only auto-select if no station is currently playing
+                if (!currentStation || !isPlaying) {
+                    const stationKeys = Object.keys(stations);
+                    const randomStationKey = stationKeys[Math.floor(Math.random() * stationKeys.length)];
+                    toggleStation(randomStationKey);
+                }
+            }
+        });
+
+        closeRadio.addEventListener('click', () => {
+            radioPlayer.classList.remove('active');
+        });
+
+        // Close radio when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!radioPlayer.contains(e.target) && e.target !== radioToggle) {
+                if (radioPlayer.classList.contains('active')) {
+                    // Don't close, just let user use the close button
+                }
+            }
+        });
+
+        // Get references to login elements
+        const loginScreen = document.getElementById('loginScreen');
+        const enterBtn = document.getElementById('enterBtn');
+        const mainContent = document.querySelector('.main-content');
+        
+        // Show ENTER button after login animation completes
+        setTimeout(() => {
+            enterBtn.style.display = 'block';
+            setTimeout(() => {
+                enterBtn.style.opacity = '1';
+            }, 50);
+        }, 3000);
+        
+        // Handle ENTER button click
+        function handleEnterClick() {
+            console.log('User interaction detected - starting system...');
+            
+            // Hide login screen with fade
+            loginScreen.style.transition = 'opacity 0.5s ease';
+            loginScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                loginScreen.style.visibility = 'hidden';
+                
+                // Show main content with fade
+                mainContent.style.transition = 'opacity 0.5s ease';
+                mainContent.style.opacity = '1';
+                
+                // Start radio after the fade transition is complete
+                setTimeout(startRadio, 500);
+                
+            }, 500); // Wait for fade out to complete
+        }
+        
+        // Function to start the radio
+        function startRadio() {
+            console.log('Starting radio...');
+            
+            // Start Radio New Vegas automatically
+            const stationKey = 'radio-new-vegas';
+            const station = stations[stationKey];
+            
+            // Get random start time
+            const startSeconds = getRandomStartTime(station.timestamps);
+            
+            // Create and start audio player
+            audioPlayer = new Audio(station.audioFile);
+            audioPlayer.volume = 0.7;
+            audioPlayer.currentTime = startSeconds;
+            
+            // Now we can play because user has interacted!
+            audioPlayer.play().then(() => {
+                console.log('Radio started successfully');
+                
+                // Update tracking
+                currentStation = stationKey;
+                currentStationData = station;
+                startTime = startSeconds;
+                totalElapsedSeconds = startSeconds;
+                isPlaying = true;
+                
+                // Start time tracking
+                startElapsedTimeTracker();
+                
+                console.log(`Radio playing from ${Math.floor(startSeconds/60)}:${(startSeconds%60).toString().padStart(2,'0')}`);
+                
+            }).catch(e => {
+                console.error('Radio play failed:', e);
+                // Still set up tracking even if play failed
+                currentStation = stationKey;
+                currentStationData = station;
+                startTime = startSeconds;
+                totalElapsedSeconds = startSeconds;
+                isPlaying = false;
+            });
+        }
+        
+        // Event listeners for ENTER button
+        enterBtn.addEventListener('click', handleEnterClick);
+        
+        // Also allow pressing Enter key on keyboard
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && loginScreen.style.opacity !== '0' && enterBtn.style.display === 'block') {
+                handleEnterClick();
+            }
+        });
+    </script>
+</body>
+</html>
