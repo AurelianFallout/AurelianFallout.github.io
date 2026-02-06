@@ -657,7 +657,7 @@
             box-shadow: 0 0 15px var(--primary-color);
         }
         
-        /* Responsive video containers */
+        /* Responsive video container - 16:9 aspect ratio */
         .video-container {
             position: relative;
             width: 100%;
@@ -673,34 +673,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-        
-        .shorts-grid {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .short-container {
-            position: relative;
-            width: 100%;
-            max-width: 315px;
-            padding-bottom: 177.78%; /* 9:16 aspect ratio for shorts */
-            height: 0;
-            overflow: hidden;
-        }
-        
-        .short-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 10px var(--primary-glow);
+            border: 0;
         }
         
         /* Extra mobile optimization */
@@ -752,10 +725,6 @@
                 padding: 12px;
                 width: calc(100% - 10px);
             }
-            
-            .short-container {
-                max-width: 280px;
-            }
         }
         
         @media (max-width: 380px) {
@@ -774,10 +743,6 @@
             
             .link-title {
                 font-size: 0.9em;
-            }
-            
-            .short-container {
-                max-width: 250px;
             }
         }
     </style>
@@ -899,94 +864,94 @@
         </div>
     </div>
 
-    <script>
-        // Random CRT glitch effect
-        function triggerGlitch() {
-            const terminal = document.querySelector('.terminal');
-            if (terminal && Math.random() < 0.3) { // 30% chance
-                terminal.classList.add('glitch-active');
-                setTimeout(() => {
-                    terminal.classList.remove('glitch-active');
-                }, 300);
-            }
-        }
-
-        // Trigger glitch randomly every 8-15 seconds
-        function scheduleRandomGlitch() {
-            const delay = Math.random() * 7000 + 8000; // 8-15 seconds
+<script>
+    // Random CRT glitch effect
+    function triggerGlitch() {
+        const terminal = document.querySelector('.terminal');
+        if (terminal && Math.random() < 0.3) { // 30% chance
+            terminal.classList.add('glitch-active');
             setTimeout(() => {
-                triggerGlitch();
-                scheduleRandomGlitch();
-            }, delay);
+                terminal.classList.remove('glitch-active');
+            }, 300);
         }
+    }
 
-        // Start glitch effect after page loads
+    // Trigger glitch randomly every 8-15 seconds
+    function scheduleRandomGlitch() {
+        const delay = Math.random() * 7000 + 8000; // 8-15 seconds
         setTimeout(() => {
+            triggerGlitch();
             scheduleRandomGlitch();
-        }, 5000);
+        }, delay);
+    }
 
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const themeName = document.getElementById('themeName');
-        let currentTheme = 'classic';
+    // Start glitch effect after page loads
+    setTimeout(() => {
+        scheduleRandomGlitch();
+    }, 5000);
 
-        themeToggle.addEventListener('click', () => {
-            if (currentTheme === 'classic') {
-                document.body.classList.add('amber-theme');
-                themeName.textContent = 'MOJAVE';
-                currentTheme = 'amber';
-            } else {
-                document.body.classList.remove('amber-theme');
-                themeName.textContent = 'CLASSIC';
-                currentTheme = 'classic';
-            }
-            
-            // Trigger glitch on theme change
-            const terminal = document.querySelector('.terminal');
-            if (terminal) {
-                terminal.classList.add('glitch-active');
-                setTimeout(() => {
-                    terminal.classList.remove('glitch-active');
-                }, 300);
-            }
-        });
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeName = document.getElementById('themeName');
+    let currentTheme = 'classic';
 
-        // Radio Player with HTML5 Audio API
-        const radioToggle = document.getElementById('radioToggle');
-        const radioPlayer = document.getElementById('radioPlayer');
-        const closeRadio = document.getElementById('closeRadio');
-        const stationButtons = document.querySelectorAll('.radio-station-btn');
-        const nowPlaying = document.getElementById('nowPlaying');
+    themeToggle.addEventListener('click', () => {
+        if (currentTheme === 'classic') {
+            document.body.classList.add('amber-theme');
+            themeName.textContent = 'MOJAVE';
+            currentTheme = 'amber';
+        } else {
+            document.body.classList.remove('amber-theme');
+            themeName.textContent = 'CLASSIC';
+            currentTheme = 'classic';
+        }
+        
+        // Trigger glitch on theme change
+        const terminal = document.querySelector('.terminal');
+        if (terminal) {
+            terminal.classList.add('glitch-active');
+            setTimeout(() => {
+                terminal.classList.remove('glitch-active');
+            }, 300);
+        }
+    });
 
-        // Complete Radio New Vegas timeline (timestamps in seconds)
-        const radioNewVegasTimestamps = [
-            1,     // 0:01 Mr. New Vegas
-            46,    // 0:46 Blue Moon by Frank Sinatra
-            216,   // 3:36 Mr. New Vegas
-            272,   // 4:32 Manhattan by Gerhard Trede
-            353,   // 5:53 Mr. New Vegas
-            408,   // 6:48 Mad About The Boy by Dinah Washington
-            537,   // 8:57 Mr. New Vegas
-            579,   // 9:39 Von Spanien Nach Südamerika by Gerhard Trede
-            684,   // 11:24 Mr. New Vegas
-            745,   // 12:25 Heartache by The Numbers sung by Guy Mitchell
-            896,   // 14:56 Mr. New Vegas
-            955,   // 15:55 Where Have You Been All My Life by Hal Davis and John Cacavas
-            1130,  // 18:50 Mr. New Vegas
-            1217,  // 20:17 Ain't That a Kick in the Head by Deana Martin
-            1362,  // 22:42 Mr. New Vegas
-            1423,  // 23:43 Why Don't You Do Right by Peggy Lee
-            1625,  // 27:05 Mr. New Vegas
-            1679,  // 27:59 Strahlende Trompete by Gerhard Trede
-            1863,  // 31:03 Mr. New Vegas
-            1920,  // 32:00 Sit and Dream by Pete Thomas
-            2008,  // 33:28 Mr. New Vegas
-            2061,  // 34:21 It's a Sin to Tell a Lie by The Ink Spots
-            2202,  // 36:42 Mr. New Vegas
-            2261,  // 37:41 Hallo Mister X by Gerhard Trede
-            2390,  // 39:50 Mr. New Vegas
-            2447,  // 40:47 Jingle Jangle Jingle by Kay Kyser
-            2647,  // 44:07 Mr. New Vegas
+    // Radio Player with HTML5 Audio API
+    const radioToggle = document.getElementById('radioToggle');
+    const radioPlayer = document.getElementById('radioPlayer');
+    const closeRadio = document.getElementById('closeRadio');
+    const stationButtons = document.querySelectorAll('.radio-station-btn');
+    const nowPlaying = document.getElementById('nowPlaying');
+
+    // Complete Radio New Vegas timeline (timestamps in seconds)
+    const radioNewVegasTimestamps = [
+        1,     // 0:01 Mr. New Vegas
+        46,    // 0:46 Blue Moon by Frank Sinatra
+        216,   // 3:36 Mr. New Vegas
+        272,   // 4:32 Manhattan by Gerhard Trede
+        353,   // 5:53 Mr. New Vegas
+        408,   // 6:48 Mad About The Boy by Dinah Washington
+        537,   // 8:57 Mr. New Vegas
+        579,   // 9:39 Von Spanien Nach Südamerika by Gerhard Trede
+        684,   // 11:24 Mr. New Vegas
+        745,   // 12:25 Heartache by The Numbers sung by Guy Mitchell
+        896,   // 14:56 Mr. New Vegas
+        955,   // 15:55 Where Have You Been All My Life by Hal Davis and John Cacavas
+        1130,  // 18:50 Mr. New Vegas
+        1217,  // 20:17 Ain't That a Kick in the Head by Deana Martin
+        1362,  // 22:42 Mr. New Vegas
+        1423,  // 23:43 Why Don't You Do Right by Peggy Lee
+        1625,  // 27:05 Mr. New Vegas
+        1679,  // 27:59 Strahlende Trompete by Gerhard Trede
+        1863,  // 31:03 Mr. New Vegas
+        1920,  // 32:00 Sit and Dream by Pete Thomas
+        2008,  // 33:28 Mr. New Vegas
+        2061,  // 34:21 It's a Sin to Tell a Lie by The Ink Spots
+        2202,  // 36:42 Mr. New Vegas
+        2261,  // 37:41 Hallo Mister X by Gerhard Trede
+        2390,  // 39:50 Mr. New Vegas
+        2447,  // 40:47 Jingle Jangle Jingle by Kay Kyser
+        2647,  // 44:07 Mr. New Vegas
             2692,  // 44:52 Big Iron by Marty Robbins
             2930,  // 48:50 Mr. New Vegas
             2994,  // 49:54 Something's Gotta Give sung by Bill Crosby
@@ -1496,122 +1461,197 @@
             tagline.textContent = quotes[randomIndex];
         }
 
-        (async () => {
-            const feedUrl =
-                "https://www.youtube.com/feeds/videos.xml?channel_id=UCzWlkdjmrpyr4EHL2-6QTJQ";
-
-            const proxyUrl =
-                "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl) + "&_=" + Date.now();
-
-            const res = await fetch(proxyUrl);
-            const data = await res.json(); // AllOrigins wraps the XML in JSON
-            const xmlText = data.contents;
-
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(xmlText, "application/xml");
-
-            const entries = [...xml.getElementsByTagName("entry")];
+        // PROXY FALLBACK FUNCTION - NEW CODE ADDED HERE
+        async function fetchWithProxyFallback(url) {
+            const proxies = [
+                'https://api.allorigins.win/get?url=',  // Original
+                'https://corsproxy.io/?',               // Alternative 1
+                'https://thingproxy.freeboard.io/fetch/',  // Alternative 2
+                'https://cors-anywhere.herokuapp.com/', // Alternative 3 (may require temporary access)
+                'https://api.codetabs.com/v1/proxy?quest=' // Alternative 4
+            ];
             
-            // Clear existing content
-            document.getElementById("shorts").innerHTML = "";
-            document.getElementById("video").innerHTML = "";
-            
-            // Arrays to store filtered content
-            const shorts = [];
-            const fullVideos = [];
-            
-            // Process all entries to categorize them
-            for (let entry of entries) {
-                const videoIdEl = entry.getElementsByTagNameNS(
-                    "http://www.youtube.com/xml/schemas/2015",
-                    "videoId"
-                )[0];
-                
-                if (!videoIdEl) continue;
-                
-                const videoId = videoIdEl.textContent;
-                const descriptionEl = entry.getElementsByTagNameNS(
-                    "http://search.yahoo.com/mrss/",
-                    "description"
-                )[0];
-                
-                const description = descriptionEl ? descriptionEl.textContent : "";
-                const titleEl = entry.getElementsByTagName("title")[0];
-                const title = titleEl ? titleEl.textContent : "";
-                
-                // Check if it's a short by looking for hashtags in description
-                const hasHashtags = /#\w+/i.test(description);
-                
-                const videoData = {
-                    id: videoId,
-                    title: title,
-                    description: description,
-                    entry: entry
-                };
-                
-                if (hasHashtags) {
-                    shorts.push(videoData);
-                } else {
-                    fullVideos.push(videoData);
+            // Try each proxy sequentially
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const proxyUrl = proxies[i] + encodeURIComponent(url);
+                    console.log(`Trying proxy ${i + 1}: ${proxies[i].split('/')[2]}`);
+                    
+                    const response = await fetch(proxyUrl, {
+                        signal: AbortSignal.timeout(8000) // 8 second timeout
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Proxy ${i + 1} failed with status: ${response.status}`);
+                    }
+                    
+                    const data = await response.text();
+                    console.log(`✓ Proxy ${i + 1} succeeded`);
+                    return data;
+                    
+                } catch (error) {
+                    console.warn(`Proxy ${i + 1} failed:`, error.message);
+                    
+                    // If this is the last proxy, throw the error
+                    if (i === proxies.length - 1) {
+                        throw new Error('All proxies failed: ' + error.message);
+                    }
+                    
+                    // Wait a moment before trying the next proxy
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
             }
-            
-            // Load the 2 most recent shorts
-            const shortsContainer = document.getElementById("shorts");
-            const shortsToLoad = shorts.slice(0, 2);
-            
-            shortsToLoad.forEach((short, index) => {
-                const container = document.createElement("div");
-                container.className = "short-container";
-                
-                const iframe = document.createElement("iframe");
-                iframe.src = `https://www.youtube.com/embed/${short.id}?rel=0&modestbranding=1`;
-                iframe.frameBorder = "0";
-                iframe.allow =
-                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
+        }
 
-                iframe.onerror = () => {
-                    console.warn(`Short ${short.id} could not be embedded.`);
-                    iframe.remove();
-                };
-                
-                container.appendChild(iframe);
-                shortsContainer.appendChild(container);
-            });
-            
-            // Load the 1 most recent full-length video
-            const videoContainer = document.getElementById("video");
-            if (fullVideos.length > 0) {
-                const video = fullVideos[0];
-                const container = document.createElement("div");
-                container.className = "video-container";
-                
-                const iframe = document.createElement("iframe");
-                iframe.src = `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
-                iframe.frameBorder = "0";
-                iframe.allow =
-                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
+        // UPDATED YOUTUBE FEED FETCH FUNCTION
+        (async () => {
+            const feedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCzWlkdjmrpyr4EHL2-6QTJQ";
 
-                iframe.onerror = () => {
-                    console.warn(`Video ${video.id} could not be embedded.`);
-                    iframe.remove();
-                };
+            try {
+                // Use the proxy fallback function
+                const xmlText = await fetchWithProxyFallback(feedUrl);
                 
-                container.appendChild(iframe);
-                videoContainer.appendChild(container);
-            } else {
-                videoContainer.innerHTML = "<p>No full-length videos found.</p>";
+                // Parse the XML response
+                let finalXmlText = xmlText;
+                
+                // Check if response is JSON (allorigins format)
+                if (xmlText.trim().startsWith('{')) {
+                    try {
+                        const jsonData = JSON.parse(xmlText);
+                        finalXmlText = jsonData.contents || xmlText;
+                    } catch (e) {
+                        console.warn('Failed to parse as JSON, using raw response');
+                    }
+                }
+                
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(finalXmlText, "application/xml");
+                
+                // Check if parsing was successful
+                const parserError = xml.querySelector('parsererror');
+                if (parserError) {
+                    console.error('XML parsing error:', parserError.textContent);
+                    throw new Error('Failed to parse XML feed');
+                }
+
+                const entries = [...xml.getElementsByTagName("entry")];
+                
+                // Clear existing content
+                document.getElementById("shorts").innerHTML = "";
+                document.getElementById("video").innerHTML = "";
+                
+                // Arrays to store filtered content
+                const shorts = [];
+                const fullVideos = [];
+                
+                // Process all entries to categorize them
+                for (let entry of entries) {
+                    const videoIdEl = entry.getElementsByTagNameNS(
+                        "http://www.youtube.com/xml/schemas/2015",
+                        "videoId"
+                    )[0];
+                    
+                    if (!videoIdEl) continue;
+                    
+                    const videoId = videoIdEl.textContent;
+                    const descriptionEl = entry.getElementsByTagNameNS(
+                        "http://search.yahoo.com/mrss/",
+                        "description"
+                    )[0];
+                    
+                    const description = descriptionEl ? descriptionEl.textContent : "";
+                    const titleEl = entry.getElementsByTagName("title")[0];
+                    const title = titleEl ? titleEl.textContent : "";
+                    
+                    // Check if it's a short by looking for hashtags in description
+                    const hasHashtags = /#\w+/i.test(description);
+                    
+                    const videoData = {
+                        id: videoId,
+                        title: title,
+                        description: description,
+                        entry: entry
+                    };
+                    
+                    if (hasHashtags) {
+                        shorts.push(videoData);
+                    } else {
+                        fullVideos.push(videoData);
+                    }
+                }
+                
+                // Load the 2 most recent shorts
+                const shortsContainer = document.getElementById("shorts");
+                const shortsToLoad = shorts.slice(0, 2);
+                
+                // Add CSS to make shorts display next to each other
+                shortsContainer.style.display = "flex";
+                shortsContainer.style.gap = "20px";
+                shortsContainer.style.justifyContent = "center";
+                shortsContainer.style.flexWrap = "wrap";
+                
+                shortsToLoad.forEach((short, index) => {
+                    const container = document.createElement("div");
+                    container.className = "short-container";
+                    
+                    const iframe = document.createElement("iframe");
+                    iframe.width = "315";
+                    iframe.height = "560";
+                    iframe.src = `https://www.youtube.com/embed/${short.id}?rel=0&modestbranding=1`;
+                    iframe.frameBorder = "0";
+                    iframe.allow =
+                        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                    iframe.allowFullscreen = true;
+
+                    iframe.onerror = () => {
+                        console.warn(`Short ${short.id} could not be embedded.`);
+                        iframe.remove();
+                    };
+                    
+                    container.appendChild(iframe);
+                    shortsContainer.appendChild(container);
+                });
+                
+                // Load the 1 most recent full-length video
+                const videoContainer = document.getElementById("video");
+                if (fullVideos.length > 0) {
+                    const video = fullVideos[0];
+                    const container = document.createElement("div");
+                    container.className = "video-container";
+                    
+                    const iframe = document.createElement("iframe");
+                    iframe.src = `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
+                    iframe.frameBorder = "0";
+                    iframe.allow =
+                        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                    iframe.allowFullscreen = true;
+
+                    iframe.onerror = () => {
+                        console.warn(`Video ${video.id} could not be embedded.`);
+                        iframe.remove();
+                    };
+                    
+                    container.appendChild(iframe);
+                    videoContainer.appendChild(container);
+                } else {
+                    videoContainer.innerHTML = "<p>No full-length videos found.</p>";
+                }
+                
+                // Optional: Log what we found
+                console.log(`Found ${shorts.length} shorts and ${fullVideos.length} full-length videos`);
+                
+            } catch (error) {
+                console.error('Error fetching YouTube feed:', error);
+                
+                // Display error message to user
+                document.getElementById("shorts").innerHTML = 
+                    `<p style="color: var(--primary-color); text-align: center; padding: 20px;">
+                        Unable to load videos. Please try refreshing the page.
+                        <br><small>Error: ${error.message}</small>
+                    </p>`;
+                document.getElementById("video").innerHTML = "";
             }
-            
-            // Optional: Log what we found
-            console.log(`Found ${shorts.length} shorts and ${fullVideos.length} full-length videos`);
-            console.log("Shorts:", shorts.map(s => s.id));
-            console.log("Full videos:", fullVideos.map(v => v.id));
         })();
-
-
     </script>
 
 </body>
