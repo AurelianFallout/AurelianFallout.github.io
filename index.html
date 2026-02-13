@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="nuke-styles.css">
+    <script src="konami-nuke.js"></script>
     <style>
         * {
             margin: 0;
@@ -134,7 +136,7 @@
                        glitchColor 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
         }
         
-        /* CRT scanline effect */
+        /* CRT scanline effect - Enhanced */
         body::before {
             content: "";
             position: fixed;
@@ -144,13 +146,60 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 0px,
                 rgba(0, 0, 0, 0.15) 1px,
                 transparent 1px,
                 transparent 2px
             );
             pointer-events: none;
             z-index: 1000;
+            animation: scanlineMove 8s linear infinite;
+        }
+        
+        @keyframes scanlineMove {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(10px);
+            }
+        }
+        
+        /* Additional horizontal scanline sweep */
+        .terminal::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(51, 255, 51, 0.03) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+            animation: scanlineSweep 4s linear infinite;
+            z-index: 1;
+        }
+        
+        body.amber-theme .terminal::after {
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(255, 176, 0, 0.03) 50%,
+                transparent 100%
+            );
+        }
+        
+        @keyframes scanlineSweep {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(200%);
+            }
         }
         
         /* CRT Curvature overlay */
@@ -166,7 +215,7 @@
             z-index: 999;
         }
         
-        /* Login screen */
+        /* Login screen - HIGHEST z-index to stay on top of everything */
         .login-screen {
             position: fixed;
             top: 0;
@@ -178,7 +227,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
+            z-index: 15000;
             padding: 20px;
         }
         
@@ -187,69 +236,110 @@
         }
         
         .login-content {
-            text-align: center;
+            text-align: left;
             max-width: 90%;
+            width: 700px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 15001;
         }
         
         .login-title {
-            font-size: clamp(1.2em, 4vw, 1.8em);
-            margin-bottom: 20px;
+            font-size: clamp(1em, 3.5vw, 1.8em);
+            margin-bottom: 30px;
             animation: textGlow 2s ease-in-out infinite;
-            letter-spacing: 3px;
+            letter-spacing: clamp(1px, 0.5vw, 3px);
+            text-align: center;
+            word-wrap: break-word;
         }
         
-        .login-line {
-            font-size: clamp(0.8em, 2.5vw, 1em);
-            margin: 8px 0;
+        .boot-line {
+            font-size: clamp(0.7em, 2vw, 0.95em);
+            margin: 4px 0;
             opacity: 0;
-            animation: fadeInText 0.3s ease-in forwards;
+            animation: fadeInText 0.1s ease-in forwards;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.5px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
-        .login-line:nth-child(2) { animation-delay: 0.3s; }
-        .login-line:nth-child(3) { animation-delay: 0.8s; }
-        .login-line:nth-child(4) { animation-delay: 1.3s; }
-        .login-line:nth-child(5) { animation-delay: 1.8s; }
-        
-        .password-input {
-            display: inline-block;
-            margin-left: 10px;
-            animation: typing 0.5s steps(8) 0.8s forwards;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
+        .boot-line.error {
+            color: #ff3333 !important;
         }
         
-        @keyframes typing {
-            to { width: 80px; }
+        .boot-line.warning {
+            color: #ffaa00 !important;
         }
         
-        .access-granted {
+        .boot-line.success {
+            color: #33ff33 !important;
+        }
+        
+        .boot-line.highlight {
             color: var(--secondary-color) !important;
-            font-size: clamp(1em, 3vw, 1.3em);
-            text-shadow: 0 0 20px var(--secondary-color);
+            text-shadow: 0 0 10px var(--secondary-color);
         }
         
-        .loading-bar {
-            width: 80%;
-            max-width: 400px;
-            height: 20px;
-            border: 2px solid var(--primary-color);
-            margin: 20px auto;
-            position: relative;
-            opacity: 0;
-            animation: fadeInText 0.3s ease-in 2.3s forwards;
-        }
-        
-        .loading-fill {
-            height: 100%;
+        .boot-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em;
             background: var(--primary-color);
-            width: 0;
-            animation: loadBar 0.7s ease-out 2.3s forwards;
-            box-shadow: 0 0 10px var(--primary-color);
+            animation: blink 0.8s step-end infinite;
+            margin-left: 2px;
         }
         
-        @keyframes loadBar {
-            to { width: 100%; }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* FIXED: Progress bar with guaranteed visibility */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            border: 2px solid var(--primary-color) !important;
+            margin: 15px 0;
+            position: relative;
+            background: rgba(0, 0, 0, 0.5) !important;
+            opacity: 1 !important;
+            display: block !important;
+            visibility: visible !important;
+            z-index: 15002 !important;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-color) !important;
+            width: 0;
+            box-shadow: 0 0 10px var(--primary-color);
+            transition: width 0.1s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 15003 !important;
+        }
+        
+        .progress-bar-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8em;
+            color: #000 !important;
+            font-weight: bold;
+            mix-blend-mode: difference;
+            z-index: 15004 !important;
+        }
+        
+        @keyframes screenFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .flicker {
+            animation: screenFlicker 0.1s ease-in-out 3;
         }
         
         /* Main content container */
@@ -306,11 +396,11 @@
             letter-spacing: 4px;
             text-shadow: 0 0 15px var(--primary-color);
             margin-bottom: 10px;
-            color: var(--primary-color) !important; /* Always green in classic theme */
+            color: var(--primary-color) !important;
         }
         
         body.amber-theme .profile-name {
-            color: var(--primary-color) !important; /* Stays amber in amber theme */
+            color: var(--primary-color) !important;
         }
         
         .profile-tagline {
@@ -344,6 +434,31 @@
             height: 100%;
             background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
             pointer-events: none;
+        }
+        
+        /* RGB phosphor grid - very subtle */
+        .terminal > * {
+            position: relative;
+        }
+        
+        .terminal > *::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 0, 0, 0.03) 0px,
+                    rgba(0, 255, 0, 0.03) 1px,
+                    rgba(0, 0, 255, 0.03) 2px,
+                    transparent 3px
+                );
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
         }
         
         .header {
@@ -466,11 +581,6 @@
             margin-left: 5px;
         }
         
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        
         .boot-text {
             margin-bottom: 10px;
             font-size: clamp(0.75em, 2.5vw, 0.9em);
@@ -478,7 +588,6 @@
             line-height: 1.5;
         }
         
-        /* Control Panel */
         .control-panel {
             position: fixed;
             top: 10px;
@@ -487,6 +596,16 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            pointer-events: auto;
+            isolation: isolate;
+        }
+        
+        .control-panel.visible {
+            opacity: 1;
+            visibility: visible;
         }
         
         .control-btn {
@@ -661,7 +780,7 @@
         .video-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             margin: 0 auto;
@@ -675,11 +794,281 @@
             height: 100%;
             border: 0;
         }
+
+        .system-time-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 15px 0;
+            padding: 8px;
+            border: 1px solid var(--primary-color);
+            background: rgba(0, 20, 0, 0.5);
+            font-size: clamp(0.75em, 2.5vw, 0.9em);
+            flex-wrap: wrap;
+        }
+
+        .time-label {
+            color: var(--secondary-color) !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .system-time {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px var(--primary-color);
+        }
+
+        .time-zone {
+            color: var(--primary-dim) !important;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        /* Achievement Popup */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            background: rgba(0, 20, 0, 0.98);
+            border: 3px solid var(--secondary-color);
+            padding: 20px;
+            box-shadow: 0 0 30px var(--secondary-color);
+            animation: achievementSlide 0.5s ease-out, achievementGlow 1.5s ease-in-out infinite;
+            max-width: 300px;
+        }
+
+        @keyframes achievementSlide {
+            from {
+                transform: translateX(-400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes achievementGlow {
+            0%, 100% { box-shadow: 0 0 20px var(--secondary-color); }
+            50% { box-shadow: 0 0 40px var(--secondary-color); }
+        }
+
+        .achievement-content {
+            text-align: center;
+            color: var(--secondary-color) !important;
+            font-size: 1em;
+            text-shadow: 0 0 10px var(--secondary-color);
+        }
+
+        .achievement-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Achievements Display Modal */
+        .achievements-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10001;
+            background: rgba(0, 20, 0, 0.98);
+            border: 3px solid var(--primary-color);
+            padding: 25px;
+            box-shadow: 0 0 40px var(--primary-glow);
+            max-width: 600px;
+            width: calc(100% - 40px);
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .achievements-modal.active {
+            display: block;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            animation: overlayFadeIn 0.3s ease-out;
+        }
+
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .achievements-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .achievements-title {
+            font-size: 1.5em;
+            color: var(--secondary-color) !important;
+            text-shadow: 0 0 15px var(--secondary-color);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .achievements-stats {
+            font-size: 0.9em;
+            color: var(--primary-dim) !important;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .achievement-card {
+            background: var(--primary-glow);
+            border: 2px solid var(--primary-color);
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .achievement-card.locked {
+            opacity: 0.4;
+            border-color: var(--primary-dim);
+        }
+
+        .achievement-card.unlocked {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .achievement-card-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .achievement-card-name {
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--primary-color) !important;
+        }
+
+        .achievement-card.unlocked .achievement-card-name {
+            color: var(--secondary-color) !important;
+            text-shadow: 0 0 8px var(--secondary-color);
+        }
+
+        .achievement-card-desc {
+            font-size: 0.85em;
+            text-align: center;
+            color: var(--primary-dim) !important;
+            line-height: 1.3;
+        }
+
+        .achievement-card-progress {
+            margin-top: 10px;
+            font-size: 0.75em;
+            text-align: center;
+            color: var(--primary-color) !important;
+        }
+
+        .achievement-locked-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            opacity: 0.5;
+        }
+
+        .close-achievements {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color) !important;
+            padding: 10px 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9em;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .close-achievements:hover {
+            background: var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
         
         /* Extra mobile optimization */
         @media (max-width: 600px) {
             body {
                 padding: 5px;
+            }
+            
+            .login-content {
+                width: 95%;
+                padding: 0 5px;
+            }
+            
+            .login-title {
+                font-size: clamp(0.9em, 3vw, 1.2em);
+                letter-spacing: 1px;
+                margin-bottom: 20px;
+            }
+            
+            .boot-line {
+                font-size: clamp(0.65em, 1.8vw, 0.85em);
+                margin: 3px 0;
+            }
+            
+            .progress-bar-container {
+                height: 16px;
+                margin: 10px 0;
+            }
+            
+            .progress-bar-text {
+                font-size: 0.7em;
+            }
+            
+            .enter-btn {
+                padding: 12px 20px;
+                font-size: 0.85em;
+                margin-top: 20px;
             }
             
             .profile-pic {
@@ -725,9 +1114,40 @@
                 padding: 12px;
                 width: calc(100% - 10px);
             }
+
+            .achievement-popup {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+                padding: 15px;
+            }
+
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .achievements-modal {
+                padding: 15px;
+                max-height: 90vh;
+            }
         }
         
         @media (max-width: 380px) {
+            .login-title {
+                font-size: 0.85em;
+            }
+            
+            .boot-line {
+                font-size: 0.6em;
+                margin: 2px 0;
+            }
+            
+            .enter-btn {
+                padding: 10px 15px;
+                font-size: 0.75em;
+            }
+            
             .profile-pic {
                 width: 100px;
                 height: 100px;
@@ -745,31 +1165,38 @@
                 font-size: 0.9em;
             }
         }
+
     </style>
 </head>
 <body>
     <!-- Login Animation Screen -->
     <div class="login-screen" id="loginScreen">
-        <div class="login-content">
+        <div class="login-content" id="loginContent">
             <div class="login-title">ROBCO INDUSTRIES (TM) TERMLINK</div>
-            <div class="login-line">INITIALIZING SYSTEM...</div>
-            <div class="login-line">ENTER PASSWORD:<span class="password-input">********</span></div>
-            <div class="login-line">VERIFYING CREDENTIALS...</div>
-            <div class="login-line access-granted">>>> ACCESS GRANTED <<<</div>
-            <div class="loading-bar">
-                <div class="loading-fill"></div>
-            </div>
-            <!-- Add ENTER button -->
-            <button class="enter-btn" id="enterBtn" style="display: none;">
-                [PRESS ENTER TO CONTINUE]
-            </button>
+            <!-- Boot sequence will be dynamically added here -->
         </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <!-- Achievements Modal -->
+    <div class="achievements-modal" id="achievementsModal">
+        <div class="achievements-header">
+            <div class="achievements-title">⭐ ACHIEVEMENTS ⭐</div>
+            <div class="achievements-stats" id="achievementsStats">Loading...</div>
+        </div>
+        <div class="achievements-grid" id="achievementsGrid">
+            <!-- Achievement cards will be inserted here -->
+        </div>
+        <button class="close-achievements" id="closeAchievements">CLOSE</button>
     </div>
 
     <!-- Control Panel -->
     <div class="control-panel">
         <button class="control-btn" id="themeToggle">THEME: <span id="themeName">CLASSIC</span></button>
         <button class="control-btn" id="radioToggle">RADIO</button>
+        <button class="control-btn" id="achievementsToggle">ACHIEVEMENTS</button>
     </div>
 
     <!-- Radio Player -->
@@ -803,6 +1230,11 @@
         </div>
         
         <div class="terminal">
+            <div class="system-time-container">
+                <span class="time-label">SYSTEM TIME:</span>
+                <span class="system-time" id="systemTime"></span>
+                <span class="time-zone">GMT</span>
+            </div>
             <div class="boot-text">AURELIAN NETWORK TERMINAL PROTOCOL</div>
             <div class="boot-text">SOCIAL DATABANK ACCESS</div>
             
@@ -836,7 +1268,7 @@
                 <div class="section-title">ADDITIONAL PROTOCOLS</div>
                 <div class="link-container">
                     
-                    <a href="mailto:aurelianfallout@gmail.com" class="link">
+                    <a href="/cdn-cgi/l/email-protection#ccadb9bea9a0a5ada2aaada0a0a3b9b88caba1ada5a0e2afa3a1" class="link">
                         <div class="link-title">EMAIL CONTACT</div>
                         <div class="link-desc">Direct message protocol</div>
                     </a>
@@ -864,11 +1296,301 @@
         </div>
     </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Sound Effects Manager
+    const soundEffects = {
+        // To add sounds: Place .mp3 or .wav files in an "Assets/sounds/" folder
+        // and update these paths:
+        typing: 'Assets/sounds/typing2.mp3',
+        click: 'Assets/sounds/click.mp3',
+        
+        // Volume controls (0.0 to 1.0)
+        typingVolume: 0.3,   // Adjust typing sound volume here
+        clickVolume: 1,    // Adjust click sound volume here
+        
+        audioCache: {},
+        currentlyPlaying: {},
+        
+        play: function(soundKey) {
+            if (!this[soundKey]) return; // Sound not configured
+            
+            try {
+                // Stop any currently playing instance of this sound
+                if (this.currentlyPlaying[soundKey]) {
+                    this.currentlyPlaying[soundKey].pause();
+                    this.currentlyPlaying[soundKey].currentTime = 0;
+                }
+                
+                // Create or get cached audio
+                if (!this.audioCache[soundKey]) {
+                    this.audioCache[soundKey] = new Audio(this[soundKey]);
+                }
+                
+                // Use the cached audio directly (don't clone)
+                const sound = this.audioCache[soundKey];
+                sound.currentTime = 0; // Reset to start
+                
+                // Set volume based on sound type
+                if (soundKey === 'typing') {
+                    sound.volume = this.typingVolume;
+                } else if (soundKey === 'click') {
+                    sound.volume = this.clickVolume;
+                } else {
+                    sound.volume = 0.4; // Default fallback
+                }
+                
+                this.currentlyPlaying[soundKey] = sound;
+                sound.play().catch(e => console.log('Sound play prevented:', e));
+            } catch (e) {
+                console.log('Sound error:', e);
+            }
+        }
+    };
+
+    // Enhanced Boot Sequence
+    const bootSequence = [
+        { text: '', delay: 200 },
+        { text: 'ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM', delay: 100, sound: 'typing' },
+        { text: 'COPYRIGHT 2075-2077 ROBCO INDUSTRIES', delay: 100, sound: 'typing' },
+        { text: '-Server 6-', delay: 150, sound: 'typing' },
+        { text: '', delay: 200 },
+        { text: 'Initializing Robco Termlink Protocol v4.1.0.8...', delay: 100, class: 'highlight', sound: 'typing' },
+        { text: '', delay: 100 },
+        { text: '> Booting kernel...', delay: 150, sound: 'typing' },
+        { text: '> Loading system modules...', delay: 150, sound: 'typing' },
+        { text: '> Initializing memory banks...', delay: 150, sound: 'typing' },
+        { text: '', delay: 150 },
+        { text: 'SYSTEM DIAGNOSTICS:', delay: 100, class: 'highlight', sound: 'typing' },
+        { text: '  CPU: RobCo Mk.VI Processor.............[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '  RAM: 640K Extended Memory..............[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '  BIOS: v2.1.5 (08/13/2077)..............[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '  Network Interface......................[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '  Video Display Adapter..................[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '  Keyboard Controller....................[OK]', delay: 80, class: 'success', sound: 'typing' },
+        { text: '', delay: 200 },
+        { text: 'Scanning for connected systems...', delay: 150, sound: 'typing' },
+        { text: '  Found: AURELIAN-NET-001', delay: 100, sound: 'typing' },
+        { text: '  Status: ACTIVE', delay: 100, class: 'success', sound: 'typing' },
+        { text: '', delay: 150 },
+        { text: 'LOADING SECURITY PROTOCOLS...', delay: 100, class: 'highlight', sound: 'typing' },
+        { text: '', delay: 50 },
+        { text: 'Authenticating user credentials...', delay: 150, sound: 'typing' },
+        { text: 'ENTER PASSWORD: ', delay: 200, cursor: true, sound: 'typing' },
+        { text: 'ENTER PASSWORD: ********', delay: 800, replaceLast: true, sound: 'typing' },
+        { text: '', delay: 100 },
+        { text: 'Verifying access codes...', delay: 150, sound: 'typing' },
+        { text: '  User: AUTHENTICATED', delay: 150, class: 'success', sound: 'typing' },
+        { text: '  Access Level: ADMINISTRATOR', delay: 150, class: 'success', sound: 'typing' },
+        { text: '  Clearance: AUTHORIZED', delay: 150, class: 'success', sound: 'typing' },
+        { text: '', delay: 200 },
+        { text: '>>> ACCESS GRANTED <<<', delay: 150, class: 'access-granted', sound: 'typing' },
+        { text: '', delay: 100 },
+        { text: 'Loading network resources...', delay: 100, progress: true, sound: 'typing' }
+    ];
+
+    let currentLine = 0;
+    let bootContainer = null;
+    let bootSequenceCompleted = false;
+    const originalPlay = soundEffects.play;
+
+    soundEffects.play = function(soundKey) {
+        if (bootSequenceCompleted && soundKey === 'typing') {
+            return;
+        }
+        // Otherwise, play the sound normally
+        return originalPlay.call(this, soundKey);
+    };
+
+    function createBootLine(text, className = '') {
+        const line = document.createElement('div');
+        line.className = 'boot-line ' + className;
+        line.textContent = text;
+        return line;
+    }
+
+    function createProgressBar() {
+        const container = document.createElement('div');
+        container.className = 'progress-bar-container';
+        container.style.setProperty('opacity', '1', 'important'); // Add !important
+        
+        const fill = document.createElement('div');
+        fill.className = 'progress-bar-fill';
+        
+        const text = document.createElement('div');
+        text.className = 'progress-bar-text';
+        text.textContent = '0%';
+        
+        container.appendChild(fill);
+        container.appendChild(text);
+        
+        return { container, fill, text };
+    }
+
+    function animateProgressBar(container, fill, text, callback) {
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+            
+            fill.style.width = progress + '%';
+            text.textContent = Math.floor(progress) + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(callback, 300);
+            }
+        }, 80);
+    }
+
+    function screenFlicker() {
+        const screen = document.getElementById('loginScreen');
+        screen.classList.add('flicker');
+        setTimeout(() => {
+            screen.classList.remove('flicker');
+        }, 300);
+    }
+
+    function processBootSequence() {
+        if (currentLine >= bootSequence.length) {
+            bootSequenceCompleted = true;
+            stopAllTypingSounds();
+            showEnterButton();
+            return;
+        }
+
+        const step = bootSequence[currentLine];
+        console.log('Processing step:', currentLine, step); // Debug log
+        
+        // Play sound effect if specified
+        if (step.sound) {
+            soundEffects.play(step.sound);
+        }
+        
+        if (step.replaceLast && bootContainer.lastChild) {
+            bootContainer.removeChild(bootContainer.lastChild);
+        }
+
+        if (step.progress) {
+            console.log('Creating progress bar for step:', currentLine); // Debug log
+            
+            const line = createBootLine(step.text, step.class || '');
+            bootContainer.appendChild(line);
+            line.style.opacity = '1';
+            
+            const { container, fill, text } = createProgressBar();
+            bootContainer.appendChild(container);
+            
+            // Force container to be visible
+            container.style.setProperty('opacity', '1', 'important');
+            container.style.setProperty('display', 'block', 'important');
+            container.style.setProperty('visibility', 'visible', 'important');
+            
+            console.log('Progress bar container created and appended'); // Debug log
+            
+            // Start animation
+            animateProgressBar(container, fill, text, () => {
+                currentLine++;
+                processBootSequence();
+            });
+            
+        } else {
+            const line = createBootLine(
+                step.text + (step.cursor ? '' : ''),
+                step.class || ''
+            );
+            bootContainer.appendChild(line);
+            line.style.opacity = '1';
+            
+            // Random flicker effect on certain lines
+            if (Math.random() < 0.15 && step.text.length > 0) {
+                screenFlicker();
+            }
+            
+            currentLine++;
+            setTimeout(processBootSequence, step.delay);
+        }
+        
+        // Auto-scroll
+        if (bootContainer.parentElement) {
+            bootContainer.parentElement.scrollTop = bootContainer.scrollHeight;
+        }
+    }
+
+    function stopAllTypingSounds() {
+        // Stop typing sound if it's playing
+        if (soundEffects.currentlyPlaying['typing']) {
+            soundEffects.currentlyPlaying['typing'].pause();
+            soundEffects.currentlyPlaying['typing'].currentTime = 0;
+        }
+        
+        // Clear any pending typing sound timeouts
+        if (window.typingTimeout) {
+            clearTimeout(window.typingTimeout);
+        }
+        
+        // Reset the audio cache for typing sound to prevent future playback
+        if (soundEffects.audioCache['typing']) {
+            // We don't delete the cache, but we'll override the play method temporarily
+            const originalPlay = soundEffects.play;
+            soundEffects.play = function(soundKey) {
+                if (soundKey === 'typing') {
+                    // Silently ignore typing sounds after boot complete
+                    return;
+                }
+                // Allow other sounds (like clicks) to play
+                return originalPlay.call(this, soundKey);
+            };
+            
+            // Restore original play function after a short delay
+            setTimeout(() => {
+                soundEffects.play = originalPlay;
+            }, 1000);
+        }
+    }
+
+    function showEnterButton() {
+        stopAllTypingSounds();
+
+        const enterBtn = document.createElement('button');
+        enterBtn.className = 'enter-btn';
+        enterBtn.id = 'enterBtn';
+        enterBtn.textContent = '[PRESS ENTER TO CONTINUE]';
+        enterBtn.style.display = 'block';
+        
+        bootContainer.appendChild(enterBtn);
+        
+        setTimeout(() => {
+            enterBtn.style.opacity = '1';
+        }, 100);
+        
+        // Add event listeners with click sound
+        enterBtn.addEventListener('click', () => {
+            soundEffects.play('click');
+            handleEnterClick();
+        });
+        
+        document.addEventListener('keydown', function keyHandler(e) {
+            if (e.key === 'Enter') {
+                soundEffects.play('click');
+                handleEnterClick();
+                document.removeEventListener('keydown', keyHandler);
+            }
+        });
+    }
+
+    // Initialize boot sequence
+    window.addEventListener('DOMContentLoaded', () => {
+        bootContainer = document.getElementById('loginContent');
+        // Start boot sequence after a brief delay
+        setTimeout(() => {
+            processBootSequence();
+        }, 500);
+    });
+
     // Random CRT glitch effect
     function triggerGlitch() {
         const terminal = document.querySelector('.terminal');
-        if (terminal && Math.random() < 0.3) { // 30% chance
+        if (terminal && Math.random() < 0.3) {
             terminal.classList.add('glitch-active');
             setTimeout(() => {
                 terminal.classList.remove('glitch-active');
@@ -876,16 +1598,14 @@
         }
     }
 
-    // Trigger glitch randomly every 8-15 seconds
     function scheduleRandomGlitch() {
-        const delay = Math.random() * 7000 + 8000; // 8-15 seconds
+        const delay = Math.random() * 7000 + 8000;
         setTimeout(() => {
             triggerGlitch();
             scheduleRandomGlitch();
         }, delay);
     }
 
-    // Start glitch effect after page loads
     setTimeout(() => {
         scheduleRandomGlitch();
     }, 5000);
@@ -896,6 +1616,8 @@
     let currentTheme = 'classic';
 
     themeToggle.addEventListener('click', () => {
+        soundEffects.play('click');
+        
         if (currentTheme === 'classic') {
             document.body.classList.add('amber-theme');
             themeName.textContent = 'MOJAVE';
@@ -906,7 +1628,6 @@
             currentTheme = 'classic';
         }
         
-        // Trigger glitch on theme change
         const terminal = document.querySelector('.terminal');
         if (terminal) {
             terminal.classList.add('glitch-active');
@@ -916,743 +1637,902 @@
         }
     });
 
-    // Radio Player with HTML5 Audio API
+    // Radio Player
     const radioToggle = document.getElementById('radioToggle');
     const radioPlayer = document.getElementById('radioPlayer');
     const closeRadio = document.getElementById('closeRadio');
     const stationButtons = document.querySelectorAll('.radio-station-btn');
     const nowPlaying = document.getElementById('nowPlaying');
 
-    // Complete Radio New Vegas timeline (timestamps in seconds)
     const radioNewVegasTimestamps = [
-        1,     // 0:01 Mr. New Vegas
-        46,    // 0:46 Blue Moon by Frank Sinatra
-        216,   // 3:36 Mr. New Vegas
-        272,   // 4:32 Manhattan by Gerhard Trede
-        353,   // 5:53 Mr. New Vegas
-        408,   // 6:48 Mad About The Boy by Dinah Washington
-        537,   // 8:57 Mr. New Vegas
-        579,   // 9:39 Von Spanien Nach Südamerika by Gerhard Trede
-        684,   // 11:24 Mr. New Vegas
-        745,   // 12:25 Heartache by The Numbers sung by Guy Mitchell
-        896,   // 14:56 Mr. New Vegas
-        955,   // 15:55 Where Have You Been All My Life by Hal Davis and John Cacavas
-        1130,  // 18:50 Mr. New Vegas
-        1217,  // 20:17 Ain't That a Kick in the Head by Deana Martin
-        1362,  // 22:42 Mr. New Vegas
-        1423,  // 23:43 Why Don't You Do Right by Peggy Lee
-        1625,  // 27:05 Mr. New Vegas
-        1679,  // 27:59 Strahlende Trompete by Gerhard Trede
-        1863,  // 31:03 Mr. New Vegas
-        1920,  // 32:00 Sit and Dream by Pete Thomas
-        2008,  // 33:28 Mr. New Vegas
-        2061,  // 34:21 It's a Sin to Tell a Lie by The Ink Spots
-        2202,  // 36:42 Mr. New Vegas
-        2261,  // 37:41 Hallo Mister X by Gerhard Trede
-        2390,  // 39:50 Mr. New Vegas
-        2447,  // 40:47 Jingle Jangle Jingle by Kay Kyser
-        2647,  // 44:07 Mr. New Vegas
-            2692,  // 44:52 Big Iron by Marty Robbins
-            2930,  // 48:50 Mr. New Vegas
-            2994,  // 49:54 Something's Gotta Give sung by Bill Crosby
-            3116,  // 51:56 Mr. New Vegas
-            3150,  // 52:30 Honorable News Mention
-            3173,  // 52:53 Slow Bounce by Gerhard Trede
-            3286,  // 54:46 Mr. New Vegas
-            3342,  // 55:42 Johnny Guitar by Peggy Lee
-            3521,  // 58:41 Mr. New Vegas
-            3566,  // 59:26 American Swing by Gerhard Trede
-            3661,  // 1:01:01 Mr. New Vegas
-            3716,  // 1:01:56 Love Me As Though There Were No Tomorrow by Nat King Cole
-            3870   // 1:04:30 Mr. New Vegas
-        ];
+        1, 46, 216, 272, 353, 408, 537, 579, 684, 745, 896, 955, 1130, 1217, 1362, 1423, 1625, 1679, 1863, 1920,
+        2008, 2061, 2202, 2261, 2390, 2447, 2647, 2692, 2930, 2994, 3116, 3150, 3173, 3286, 3342, 3521, 3566, 3661, 3716, 3870
+    ];
 
-        // Complete Galaxy News Radio timeline (timestamps in seconds)
-        const galaxyNewsRadioTimestamps = [
-            0,     // 0:00 - Three Dog
-            115,   // 1:55 - I Don't Want To Set The World On Fire by The Ink Spots
-            300,   // 5:00 - Three Dog
-            367,   // 6:07 - Crazy He Calls Me by Billie Holiday
-            550,   // 9:10 - Three Dog
-            640,   // 10:40 - Fox Boogie by Gerhard Trede
-            836,   // 13:56 - Three Dog (Herbert Daring Dashwood)
-            1060,  // 17:40 - Mighty Mighty Man by Roy Brown
-            1214,  // 20:14 - Three Dog
-            1340,  // 22:20 - Way Back Home by Bob Crosby
-            1512,  // 25:12 - Three Dog
-            1614,  // 26:54 - I'm Tickled Pink by Jack Shaindlin Dance Orchestra
-            1724,  // 28:44 - Three Dog
-            1798,  // 29:58 - Jazzy Interlude by Billy Munn
-            1968,  // 32:48 - Three Dog (Herbert Daring Dashwood)
-            2225,  // 37:05 - A Wonderful Guy by Tex Beneke
-            2338,  // 38:58 - Three Dog
-            2446,  // 40:46 - Rhythm For You by Eddy Christiani
-            2626,  // 43:46 - Three Dog
-            2721,  // 45:21 - Civilization (Bongo Bongo Bongo) by Andrews Sisters|Danny Kaye
-            2903,  // 48:23 - Three Dog (short, just a couple seconds)
-            2906,  // 48:26 - Boogie Man by Sid Phillips
-            3049,  // 50:49 - Three Dog (Herbert Daring Dashwood)
-            3265,  // 54:25 - Anything Goes by Cole Porter
-            3453,  // 57:33 - Three Dog
-            3512,  // 58:32 - Let's Go Sunning by Jack Shaindlin Dance Orchestra
-            3614,  // 1:00:14 - Three Dog
-            3663,  // 1:01:03 - Into Each Life Some Rain Must Fall by The Ink Spots|Ella Fitzgerald
-            3851,  // 1:04:11 - Three Dog
-            3982,  // 1:06:22 - Swing Doors by Allan Gray
-            4162,  // 1:09:22 - Three Dog (Herbert Daring Dashwood)
-            4404,  // 1:13:24 - Maybe by The Ink Spots
-            4576,  // 1:16:16 - Three Dog
-            4657,  // 1:17:37 - Easy Living by Billie Holiday
-            4841,  // 1:20:41 - Three Dog
-            4899,  // 1:21:39 - Jolly Days by Gerhard Trede
-            4998,  // 1:23:18 - Three Dog
-            5108,  // 1:25:08 - Butcher Pete by Roy Brown
-            5256,  // 1:27:36 - Three Dog
-            5358   // 1:29:18 - Happy Times by Bob Crosby and the Bobcats
-        ];
+    const galaxyNewsRadioTimestamps = [
+        0, 115, 300, 367, 550, 640, 836, 1060, 1214, 1340, 1512, 1614, 1724, 1798, 1968, 2225, 2338, 2446, 2626, 2721,
+        2903, 2906, 3049, 3265, 3453, 3512, 3614, 3663, 3851, 3982, 4162, 4404, 4576, 4657, 4841, 4899, 4998, 5108, 5256, 5358
+    ];
 
-        // Diamond City Radio timeline (timestamps in seconds)
-        const diamondCityRadioTimestamps = [
-            0,      // 00:00 "A Wonderful Guy" by Tex Beneke
-            115,    // 01:55 "Ac-cent-tchu-ate the Positive" by Bing Crosby
-            277,    // 04:37 "Anything Goes" by Cole Porter
-            469,    // 07:49 "Atom Bomb Baby" by The Five Stars
-            608,    // 10:08 "Crazy He Calls Me" by Billie Holiday
-            793,    // 13:13 "Butcher Pete (Part 1)" by Roy Brown
-            942,    // 15:42 "Butcher Pete (Part 2)" by Roy Brown
-            1110,   // 18:30 "Civilization (Bongo,Bongo,Bongo)" by Vic Schoen
-            1296,   // 21:36 "Crawl Out Through the Fallout" by Sheldon Allman
-            1437,   // 23:57 "Dear Hearts and Gentle People" by Bob Crosby
-            1590,   // 26:30 "Easy Living" by Billie Holiday
-            1774,   // 29:34 "Good Rocking Tonight" by Roy Brown
-            1954,   // 32:34 "Grandma Plays the Numbers" by Wynonie Harris
-            2115,   // 35:15 "Happy Times" by Bob Crosby
-            2300,   // 38:20 "He's a Demon, He's a Devil, He's a Doll" by Betty Hutton
-            2494,   // 41:34 "I Don't Want to Set the World on Fire" by The Ink Spots
-            2680,   // 44:40 "Into Each Life Some Rain Must Fall" by Ella Fitzgerald
-            2870,   // 47:50 "It's a Man" by Betty Hutton
-            3014,   // 50:14 "It's All Over But the Crying" by The Ink Spots
-            3183,   // 53:03 "Keep A Knockin'" by Louis Jordan
-            3333,   // 55:33 "Maybe" by The Ink Spots
-            3519,   // 58:39 "Mighty, Mighty Man" by Roy Brown
-            3677,   // 1:01:17 "One More Tomorrow" by Marjorie Hughes
-            3876,   // 1:04:36 "Orange Colored Sky" by Stan Kenton
-            4027,   // 1:07:07 "Personality" by The Pied Pipers
-            4195,   // 1:09:55 "Pistol Packin' Mama" by Vic Schoen
-            4377,   // 1:12:57 "Right Behind You Baby" by Ray Smith
-            4523,   // 1:15:23 "Rocket 69" by Todd Rhodes
-            4689,   // 1:18:09 "Sixty Minute Man" by Billy Ward
-            4839,   // 1:20:39 "The End of the World" by Skeeter Davis
-            5000,   // 1:23:20 "The Wanderer" by Dion
-            5166,   // 1:26:06 "Undecided" by Chick Webb
-            5362,   // 1:29:22 "Uranium Fever" by Elton Britt
-            5502,   // 1:31:42 "Uranium Rock" by Warren Smith
-            5632,   // 1:33:52 "Way Back Home" by Bob Crosby
-            5811,   // 1:36:51 "Whole Lotta Shakin' Goin' On" by Big Maybelle
-            5979    // 1:39:39 "Worry Worry Worry" by The Three Suns
-        ];
+    const diamondCityRadioTimestamps = [
+        0, 115, 277, 469, 608, 793, 942, 1110, 1296, 1437, 1590, 1774, 1954, 2115, 2300, 2494, 2680, 2870, 3014, 3183,
+        3333, 3519, 3677, 3876, 4027, 4195, 4377, 4523, 4689, 4839, 5000, 5166, 5362, 5502, 5632, 5811, 5979
+    ];
 
-        // Radio stations configuration with local files
-        const stations = {
-            'radio-new-vegas': {
-                name: 'Radio New Vegas - Mr. New Vegas',
-                audioFile: 'Assets/RNV.mp3',
-                timestamps: radioNewVegasTimestamps,
-                totalLength: 3928, // 1:05:28
-                displayName: 'Radio New Vegas - Mr. New Vegas',
-                lastPosition: 0
-            },
-            'galaxy-news-radio': {
-                name: 'Galaxy News Radio - Three Dog',
-                audioFile: 'Assets/GNR.mp3',
-                timestamps: galaxyNewsRadioTimestamps,
-                totalLength: 5523, // 1:23:03
-                displayName: 'Galaxy News Radio - Three Dog',
-                lastPosition: 0
-            },
-            'diamond-city-radio': {
-                name: 'Diamond City Radio - Travis Miles',
-                audioFile: 'Assets/DCR.mp3',
-                timestamps: diamondCityRadioTimestamps,
-                totalLength: 6133, // 1:42:13
-                displayName: 'Diamond City Radio - Travis Miles',
-                lastPosition: 0
-            }
-        };
-
-        // Global audio player
-        let audioPlayer = null;
-        let currentStation = null;
-        let currentStationData = null;
-        let isPlaying = false;
-        let startTime = 0;
-        let elapsedTimeInterval = null;
-        let totalElapsedSeconds = 0;
-
-        // Get a random start time from the timestamps array
-        function getRandomStartTime(timestamps) {
-            // Start at a random track but not at the very end
-            const maxIndex = timestamps.length - 5; // Leave some room
-            const randomIndex = Math.floor(Math.random() * maxIndex);
-            return timestamps[randomIndex];
+    const stations = {
+        'radio-new-vegas': {
+            name: 'Radio New Vegas - Mr. New Vegas',
+            audioFile: 'Assets/RNV.mp3',
+            timestamps: radioNewVegasTimestamps,
+            totalLength: 3928,
+            displayName: 'Radio New Vegas - Mr. New Vegas',
+            lastPosition: 0
+        },
+        'galaxy-news-radio': {
+            name: 'Galaxy News Radio - Three Dog',
+            audioFile: 'Assets/GNR.mp3',
+            timestamps: galaxyNewsRadioTimestamps,
+            totalLength: 5523,
+            displayName: 'Galaxy News Radio - Three Dog',
+            lastPosition: 0
+        },
+        'diamond-city-radio': {
+            name: 'Diamond City Radio - Travis Miles',
+            audioFile: 'Assets/DCR.mp3',
+            timestamps: diamondCityRadioTimestamps,
+            totalLength: 6133,
+            displayName: 'Diamond City Radio - Travis Miles',
+            lastPosition: 0
         }
+    };
 
-        // Get current track info based on elapsed time
-        function getCurrentTrack(elapsedSeconds, stationTimestamps) {
-            for (let i = stationTimestamps.length - 1; i >= 0; i--) {
-                if (elapsedSeconds >= stationTimestamps[i]) {
-                    if (i === stationTimestamps.length - 1) {
-                        // At the end of the playlist, loop back to start
-                        return {
-                            currentTrackIndex: 0,
-                            timeIntoCurrentTrack: elapsedSeconds % stationTimestamps[stationTimestamps.length - 1]
-                        };
-                    }
-                    
-                    const nextTimestamp = stationTimestamps[i + 1];
+    let audioPlayer = null;
+    let currentStation = null;
+    let currentStationData = null;
+    let isPlaying = false;
+    let startTime = 0;
+    let elapsedTimeInterval = null;
+    let totalElapsedSeconds = 0;
+
+
+    function getRandomStartTime(timestamps) {
+        const maxIndex = timestamps.length - 5;
+        const randomIndex = Math.floor(Math.random() * maxIndex);
+        return timestamps[randomIndex];
+    }
+
+    function getCurrentTrack(elapsedSeconds, stationTimestamps) {
+        for (let i = stationTimestamps.length - 1; i >= 0; i--) {
+            if (elapsedSeconds >= stationTimestamps[i]) {
+                if (i === stationTimestamps.length - 1) {
                     return {
-                        currentTrackIndex: i,
-                        timeIntoCurrentTrack: elapsedSeconds - stationTimestamps[i],
-                        timeUntilNextTrack: nextTimestamp - elapsedSeconds
+                        currentTrackIndex: 0,
+                        timeIntoCurrentTrack: elapsedSeconds % stationTimestamps[stationTimestamps.length - 1]
                     };
                 }
+                
+                const nextTimestamp = stationTimestamps[i + 1];
+                return {
+                    currentTrackIndex: i,
+                    timeIntoCurrentTrack: elapsedSeconds - stationTimestamps[i],
+                    timeUntilNextTrack: nextTimestamp - elapsedSeconds
+                };
             }
-            return {
-                currentTrackIndex: 0,
-                timeIntoCurrentTrack: elapsedSeconds
-            };
         }
+        return {
+            currentTrackIndex: 0,
+            timeIntoCurrentTrack: elapsedSeconds
+        };
+    }
 
-        // Start tracking elapsed time
-        function startElapsedTimeTracker() {
+    function startElapsedTimeTracker() {
+        if (elapsedTimeInterval) {
+            clearInterval(elapsedTimeInterval);
+        }
+        
+        elapsedTimeInterval = setInterval(() => {
+            if (audioPlayer && !audioPlayer.paused) {
+                try {
+                    totalElapsedSeconds = startTime + Math.floor(audioPlayer.currentTime);
+                    if (currentStation) {
+                        stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
+                    }
+                } catch(e) {
+                    totalElapsedSeconds++;
+                }
+            }
+            
+            if (radioPlayer.classList.contains('active')) {
+                updateTrackDisplay();
+            }
+        }, 1000);
+    }
+
+    function updateTrackDisplay() {
+        if (!currentStation) {
+            nowPlaying.textContent = 'Select a station';
+            return;
+        }
+        
+        if (audioPlayer && audioPlayer.paused) {
+            nowPlaying.textContent = stations[currentStation].displayName + ' (Paused)';
+            return;
+        }
+        
+        const station = stations[currentStation];
+        const currentTime = Math.floor(audioPlayer ? audioPlayer.currentTime : totalElapsedSeconds);
+        const minutes = Math.floor(currentTime / 60);
+        const seconds = currentTime % 60;
+        const paddedSeconds = seconds.toString().padStart(2, '0');
+        
+        nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
+    }
+
+    function toggleStation(stationKey) {
+        const station = stations[stationKey];
+        
+        if (currentStation === stationKey) {
+            if (audioPlayer) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play().catch(e => console.error('Play failed:', e));
+                    isPlaying = true;
+                    stationButtons.forEach(btn => {
+                        if (btn.getAttribute('data-station') === stationKey) {
+                            btn.classList.add('playing');
+                        }
+                    });
+                    updateTrackDisplay();
+                    console.log(`Radio resumed: ${station.name}`);
+                } else {
+                    stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
+                    audioPlayer.pause();
+                    isPlaying = false;
+                    stationButtons.forEach(btn => {
+                        if (btn.getAttribute('data-station') === stationKey) {
+                            btn.classList.remove('playing');
+                        }
+                    });
+                    updateTrackDisplay();
+                    console.log(`Radio paused: ${station.name}`);
+                }
+            }
+            return;
+        }
+        
+        if (currentStation && audioPlayer) {
             if (elapsedTimeInterval) {
                 clearInterval(elapsedTimeInterval);
+                elapsedTimeInterval = null;
             }
             
-            elapsedTimeInterval = setInterval(() => {
-                if (audioPlayer && !audioPlayer.paused) {
-                    try {
-                        totalElapsedSeconds = startTime + Math.floor(audioPlayer.currentTime);
-                        // Update stored position for current station
-                        if (currentStation) {
-                            stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
-                        }
-                    } catch(e) {
-                        totalElapsedSeconds++;
-                    }
-                }
-                
-                // Update display only when radio panel is open
-                if (radioPlayer.classList.contains('active')) {
-                    updateTrackDisplay();
-                }
-            }, 1000);
+            stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
+            console.log(`Stored position for ${currentStation}: ${stations[currentStation].lastPosition} seconds`);
         }
-
-        function updateTrackDisplay() {
-            if (!currentStation) {
-                nowPlaying.textContent = 'Select a station';
-                return;
-            }
-            
-            if (audioPlayer && audioPlayer.paused) {
-                nowPlaying.textContent = stations[currentStation].displayName + ' (Paused)';
-                return;
-            }
-            
-            // Show station name and current time
-            const station = stations[currentStation];
-            const currentTime = Math.floor(audioPlayer ? audioPlayer.currentTime : totalElapsedSeconds);
-            const minutes = Math.floor(currentTime / 60);
-            const seconds = currentTime % 60;
-            const paddedSeconds = seconds.toString().padStart(2, '0');
-            
-            nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
+        
+        let startSeconds = 0;
+        if (station.lastPosition && station.lastPosition > 0) {
+            startSeconds = station.lastPosition % station.totalLength;
+            console.log(`Resuming ${station.name} from stored position: ${startSeconds} seconds`);
+        } else {
+            startSeconds = getRandomStartTime(station.timestamps);
+            console.log(`Starting ${station.name} at random time: ${startSeconds} seconds`);
         }
-
-        // Load and play a station
-        function toggleStation(stationKey) {
-            const station = stations[stationKey];
+        
+        stationButtons.forEach(btn => btn.classList.remove('playing'));
+        
+        if (!audioPlayer) {
+            audioPlayer = new Audio(station.audioFile);
             
-            // If clicking the same station that's currently playing
-            if (currentStation === stationKey) {
-                if (audioPlayer) {
-                    if (audioPlayer.paused) {
-                        // Resume playback
-                        audioPlayer.play().catch(e => console.error('Play failed:', e));
-                        isPlaying = true;
-                        stationButtons.forEach(btn => {
-                            if (btn.getAttribute('data-station') === stationKey) {
-                                btn.classList.add('playing');
-                            }
-                        });
-                        updateTrackDisplay();
-                        console.log(`Radio resumed: ${station.name}`);
-                    } else {
-                        // Pause playback and store position
-                        stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
-                        audioPlayer.pause();
-                        isPlaying = false;
-                        stationButtons.forEach(btn => {
-                            if (btn.getAttribute('data-station') === stationKey) {
-                                btn.classList.remove('playing');
-                            }
-                        });
-                        updateTrackDisplay();
-                        console.log(`Radio paused: ${station.name}`);
-                    }
-                }
-                return;
-            }
-            
-            // Store current position before switching (for current station)
-            if (currentStation && audioPlayer) {
-                // Stop the time tracker first
-                if (elapsedTimeInterval) {
-                    clearInterval(elapsedTimeInterval);
-                    elapsedTimeInterval = null;
-                }
-                
-                // Store the EXACT current time from the audio player
-                stations[currentStation].lastPosition = Math.floor(audioPlayer.currentTime);
-                console.log(`Stored position for ${currentStation}: ${stations[currentStation].lastPosition} seconds`);
-            }
-            
-            // Get start time - check if we have a last position for this station
-            let startSeconds = 0;
-            if (station.lastPosition && station.lastPosition > 0) {
-                // Resume from last known position (modulo to handle looping)
-                startSeconds = station.lastPosition % station.totalLength;
-                console.log(`Resuming ${station.name} from stored position: ${startSeconds} seconds`);
-            } else {
-                // Start at random time for first time
-                startSeconds = getRandomStartTime(station.timestamps);
-                console.log(`Starting ${station.name} at random time: ${startSeconds} seconds`);
-            }
-            
-            // Stop previous station UI
-            stationButtons.forEach(btn => btn.classList.remove('playing'));
-            
-            // Create or update audio player
-            if (!audioPlayer) {
-                audioPlayer = new Audio(station.audioFile);
-                
-                // Set up event listeners
-                audioPlayer.addEventListener('canplaythrough', function() {
-                    console.log(`Audio loaded: ${station.name}`);
-                });
-                
-                audioPlayer.addEventListener('error', function(e) {
-                    console.error('Audio error:', e);
-                    nowPlaying.textContent = 'Error loading station';
-                    stationButtons.forEach(btn => btn.classList.remove('playing'));
-                });
-                
-                audioPlayer.addEventListener('ended', function() {
-                    // Loop the audio - reset stored position
-                    station.lastPosition = 0;
-                    audioPlayer.currentTime = 0;
-                    startTime = 0;
-                    totalElapsedSeconds = 0;
-                    audioPlayer.play().catch(e => console.error('Loop play failed:', e));
-                });
-            } else {
-                // Change source of existing player
-                audioPlayer.src = station.audioFile;
-            }
-            
-            // Set volume to 70%
-            audioPlayer.volume = 0.7;
-            
-            // Set start time and play
-            audioPlayer.currentTime = startSeconds;
-            audioPlayer.play().catch(e => {
-                console.error('Playback failed:', e);
+            audioPlayer.addEventListener('canplaythrough', function() {
+                console.log(`Audio loaded: ${station.name}`);
             });
             
-            // Update tracking
+            audioPlayer.addEventListener('error', function(e) {
+                console.error('Audio error:', e);
+                nowPlaying.textContent = 'Error loading station';
+                stationButtons.forEach(btn => btn.classList.remove('playing'));
+            });
+            
+            audioPlayer.addEventListener('ended', function() {
+                station.lastPosition = 0;
+                audioPlayer.currentTime = 0;
+                startTime = 0;
+                totalElapsedSeconds = 0;
+                audioPlayer.play().catch(e => console.error('Loop play failed:', e));
+            });
+        } else {
+            audioPlayer.src = station.audioFile;
+        }
+        
+        audioPlayer.volume = 0.7;
+        audioPlayer.currentTime = startSeconds;
+        audioPlayer.play().catch(e => {
+            console.error('Playback failed:', e);
+        });
+        
+        startTime = startSeconds;
+        totalElapsedSeconds = startSeconds;
+        isPlaying = true;
+        
+        startElapsedTimeTracker();
+        
+        stationButtons.forEach(btn => {
+            if (btn.getAttribute('data-station') === stationKey) {
+                btn.classList.add('playing');
+            }
+        });
+        
+        currentStation = stationKey;
+        currentStationData = station;
+        
+        const minutes = Math.floor(startSeconds / 60);
+        const seconds = startSeconds % 60;
+        const paddedSeconds = seconds.toString().padStart(2, '0');
+        nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
+        console.log(`Playing ${station.name} from ${minutes}:${paddedSeconds}`);
+    }
+
+    stationButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            soundEffects.play('click');
+            const stationKey = button.getAttribute('data-station');
+            toggleStation(stationKey);
+        });
+    });
+
+    radioToggle.addEventListener('click', () => {
+        soundEffects.play('click');
+        
+        const wasActive = radioPlayer.classList.contains('active');
+        radioPlayer.classList.toggle('active');
+        
+        if (!wasActive && radioPlayer.classList.contains('active')) {
+            if (!currentStation || !isPlaying) {
+                const stationKeys = Object.keys(stations);
+                const randomStationKey = stationKeys[Math.floor(Math.random() * stationKeys.length)];
+                toggleStation(randomStationKey);
+            }
+        }
+    });
+
+    closeRadio.addEventListener('click', () => {
+        soundEffects.play('click');
+        radioPlayer.classList.remove('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!radioPlayer.contains(e.target) && e.target !== radioToggle) {
+            if (radioPlayer.classList.contains('active')) {
+                // Don't close
+            }
+        }
+    });
+
+    const loginScreen = document.getElementById('loginScreen');
+    const mainContent = document.querySelector('.main-content');
+    
+    function handleEnterClick() {
+        console.log('User interaction detected - starting system...');
+        
+        loginScreen.style.transition = 'opacity 0.5s ease';
+        loginScreen.style.opacity = '0';
+        
+        setTimeout(() => {
+            loginScreen.style.visibility = 'hidden';
+            
+            mainContent.style.transition = 'opacity 0.5s ease';
+            mainContent.style.opacity = '1';
+            
+            // Show control panel
+            const controlPanel = document.querySelector('.control-panel');
+            if (controlPanel) {
+                controlPanel.classList.add('visible');
+            }
+            
+            setTimeout(startRadio, 500);
+            
+        }, 500);
+    }
+    
+    function startRadio() {
+        console.log('Starting radio...');
+        
+        const stationKey = 'radio-new-vegas';
+        const station = stations[stationKey];
+        
+        const startSeconds = getRandomStartTime(station.timestamps);
+        
+        audioPlayer = new Audio(station.audioFile);
+        audioPlayer.volume = 0.7;
+        audioPlayer.currentTime = startSeconds;
+        
+        audioPlayer.play().then(() => {
+            console.log('Radio started successfully');
+            
+            currentStation = stationKey;
+            currentStationData = station;
             startTime = startSeconds;
             totalElapsedSeconds = startSeconds;
             isPlaying = true;
             
-            // Reset and start fresh time tracker
             startElapsedTimeTracker();
             
-            // Mark as playing
             stationButtons.forEach(btn => {
                 if (btn.getAttribute('data-station') === stationKey) {
                     btn.classList.add('playing');
                 }
             });
             
-            // Update current station
+            console.log(`Radio playing from ${Math.floor(startSeconds/60)}:${(startSeconds%60).toString().padStart(2,'0')}`);
+            
+        }).catch(e => {
+            console.error('Radio play failed:', e);
             currentStation = stationKey;
             currentStationData = station;
-            
-            // Show station name
-            const minutes = Math.floor(startSeconds / 60);
-            const seconds = startSeconds % 60;
-            const paddedSeconds = seconds.toString().padStart(2, '0');
-            nowPlaying.textContent = `♫ ${station.displayName} (${minutes}:${paddedSeconds})`;
-            console.log(`Playing ${station.name} from ${minutes}:${paddedSeconds}`);
-        }
-
-        // Event listeners for station buttons
-        stationButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const stationKey = button.getAttribute('data-station');
-                toggleStation(stationKey);
-            });
+            startTime = startSeconds;
+            totalElapsedSeconds = startSeconds;
+            isPlaying = false;
         });
+    }
 
-        // Radio toggle
-        radioToggle.addEventListener('click', () => {
-            const wasActive = radioPlayer.classList.contains('active');
-            radioPlayer.classList.toggle('active');
-            
-            // Pick random station when opening radio
-            if (!wasActive && radioPlayer.classList.contains('active')) {
-                // Only auto-select if no station is currently playing
-                if (!currentStation || !isPlaying) {
-                    const stationKeys = Object.keys(stations);
-                    const randomStationKey = stationKeys[Math.floor(Math.random() * stationKeys.length)];
-                    toggleStation(randomStationKey);
-                }
-            }
-        });
+    const tagline = document.querySelector('.profile-tagline');
 
-        closeRadio.addEventListener('click', () => {
-            radioPlayer.classList.remove('active');
-        });
+    const quotes = [
+        "WAR. WAR NEVER CHANGES.",
+        "PATROLLING THE MOJAVE ALMOST MAKES YOU WISH FOR A NUCLEAR WINTER.",
+        "THE GAME WAS RIGGED FROM THE START.",
+        "DEMOCRACY IS NON-NEGOTIABLE.",
+        "AIN'T THAT A KICK IN THE HEAD?",
+        "WE CAN'T EXPECT GOD TO DO ALL THE WORK.",
+        "BEGIN AGAIN, BUT KNOW WHEN TO LET GO.",
+        "THE HOUSE ALWAYS WINS.",
+        "AD VICTORIAM!",
+        "DEGENERATES LIKE YOU BELONG ON A CROSS.",
+        "I DON'T WANT TO SET THE WORLD ON FIRE.",
+        "WHAT IN THE GODDAMN...",
+        "TRUTH IS... THE GAME WAS RIGGED FROM THE START.",
+        "I DON'T ENJOY KILLING, BUT WHEN DONE RIGHTEOUSLY, IT'S JUST A CHORE.",
+        "IF YOU WANT TO SEE THE FATE OF DEMOCRACIES, LOOK OUT THE WINDOWS.",
+        "SMOOTHSKIN.",
+        "FOR THE GLORY OF THE BROTHERHOOD!",
+        "WHEN I GOT THIS ASSIGNMENT, I WAS HOPING THERE'D BE MORE GAMBLING.",
+        "THE FIRE INSIDE ME BURNS BRIGHTER THAN THE FIRE AROUND ME.",
+        "THE PRESIDENT OF THE UNITED-FUCKING-STATES-OF-AMERICA. WHO'D YOU THINK I WAS TALKING ABOUT? WHO THE FU- WHO IS- WHAT- I SHOULD KICK YOUR FUCKING ASS, WHO IS THIS?"
+    ];
 
-        // Close radio when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!radioPlayer.contains(e.target) && e.target !== radioToggle) {
-                if (radioPlayer.classList.contains('active')) {
-                    // Don't close, just let user use the close button
-                }
-            }
-        });
+    if (tagline) {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        tagline.textContent = quotes[randomIndex];
+    }
 
-        // Get references to login elements
-        const loginScreen = document.getElementById('loginScreen');
-        const enterBtn = document.getElementById('enterBtn');
-        const mainContent = document.querySelector('.main-content');
-        
-        // Show ENTER button after login animation completes
-        setTimeout(() => {
-            enterBtn.style.display = 'block';
-            setTimeout(() => {
-                enterBtn.style.opacity = '1';
-            }, 50);
-        }, 3000);
-        
-        // Handle ENTER button click
-        function handleEnterClick() {
-            console.log('User interaction detected - starting system...');
-            
-            // Hide login screen with fade
-            loginScreen.style.transition = 'opacity 0.5s ease';
-            loginScreen.style.opacity = '0';
-            
-            setTimeout(() => {
-                loginScreen.style.visibility = 'hidden';
-                
-                // Show main content with fade
-                mainContent.style.transition = 'opacity 0.5s ease';
-                mainContent.style.opacity = '1';
-                
-                // Start radio after the fade transition is complete
-                setTimeout(startRadio, 500);
-                
-            }, 500); // Wait for fade out to complete
-        }
-        
-        // Function to start the radio
-        function startRadio() {
-            console.log('Starting radio...');
-            
-            // Start Radio New Vegas automatically
-            const stationKey = 'radio-new-vegas';
-            const station = stations[stationKey];
-            
-            // Get random start time
-            const startSeconds = getRandomStartTime(station.timestamps);
-            
-            // Create and start audio player
-            audioPlayer = new Audio(station.audioFile);
-            audioPlayer.volume = 0.7;
-            audioPlayer.currentTime = startSeconds;
-            
-            // Now we can play because user has interacted!
-            audioPlayer.play().then(() => {
-                console.log('Radio started successfully');
-                
-                // Update tracking
-                currentStation = stationKey;
-                currentStationData = station;
-                startTime = startSeconds;
-                totalElapsedSeconds = startSeconds;
-                isPlaying = true;
-                
-                // Start time tracking
-                startElapsedTimeTracker();
-                
-                // Mark as playing
-                stationButtons.forEach(btn => {
-                    if (btn.getAttribute('data-station') === stationKey) {
-                        btn.classList.add('playing');
-                    }
-                });
-                
-                console.log(`Radio playing from ${Math.floor(startSeconds/60)}:${(startSeconds%60).toString().padStart(2,'0')}`);
-                
-            }).catch(e => {
-                console.error('Radio play failed:', e);
-                // Still set up tracking even if play failed
-                currentStation = stationKey;
-                currentStationData = station;
-                startTime = startSeconds;
-                totalElapsedSeconds = startSeconds;
-                isPlaying = false;
-            });
-        }
-        
-        // Event listeners for ENTER button
-        enterBtn.addEventListener('click', handleEnterClick);
-        
-        // Also allow pressing Enter key on keyboard
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && loginScreen.style.opacity !== '0' && enterBtn.style.display === 'block') {
-                handleEnterClick();
-            }
-        });
-
-        // Get the tagline element
-        const tagline = document.querySelector('.profile-tagline');
-
-        // Array of Fallout quotes
-        const quotes = [
-            "WAR. WAR NEVER CHANGES.",
-            "PATROLLING THE MOJAVE ALMOST MAKES YOU WISH FOR A NUCLEAR WINTER.",
-            "THE GAME WAS RIGGED FROM THE START.",
-            "DEMOCRACY IS NON-NEGOTIABLE.",
-            "AIN'T THAT A KICK IN THE HEAD?",
-            "WE CAN'T EXPECT GOD TO DO ALL THE WORK.",
-            "BEGIN AGAIN, BUT KNOW WHEN TO LET GO.",
-            "THE HOUSE ALWAYS WINS.",
-            "AD VICTORIAM!",
-            "DEGENERATES LIKE YOU BELONG ON A CROSS.",
-            "I DON'T WANT TO SET THE WORLD ON FIRE.",
-            "WHAT IN THE GODDAMN...",
-            "TRUTH IS... THE GAME WAS RIGGED FROM THE START.",
-            "I DON'T ENJOY KILLING, BUT WHEN DONE RIGHTEOUSLY, IT'S JUST A CHORE.",
-            "IF YOU WANT TO SEE THE FATE OF DEMOCRACIES, LOOK OUT THE WINDOWS.",
-            "SMOOTHSKIN.",
-            "FOR THE GLORY OF THE BROTHERHOOD!",
-            "WHEN I GOT THIS ASSIGNMENT, I WAS HOPING THERE'D BE MORE GAMBLING.",
-            "THE FIRE INSIDE ME BURNS BRIGHTER THAN THE FIRE AROUND ME.",
-            "THE PRESIDENT OF THE UNITED-FUCKING-STATES-OF-AMERICA. WHO'D YOU THINK I WAS TALKING ABOUT? WHO THE FU- WHO IS- WHAT- I SHOULD KICK YOUR FUCKING ASS, WHO IS THIS?"
+    async function fetchWithProxyFallback(url) {
+        const proxies = [
+            'https://api.allorigins.win/get?url=',
+            'https://corsproxy.io/?',
+            'https://thingproxy.freeboard.io/fetch/',
+            'https://cors-anywhere.herokuapp.com/',
+            'https://api.codetabs.com/v1/proxy?quest='
         ];
-
-        // Replace with random quote when page loads
-        if (tagline) {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            tagline.textContent = quotes[randomIndex];
-        }
-
-        // PROXY FALLBACK FUNCTION - NEW CODE ADDED HERE
-        async function fetchWithProxyFallback(url) {
-            const proxies = [
-                'https://api.allorigins.win/get?url=',  // Original
-                'https://corsproxy.io/?',               // Alternative 1
-                'https://thingproxy.freeboard.io/fetch/',  // Alternative 2
-                'https://cors-anywhere.herokuapp.com/', // Alternative 3 (may require temporary access)
-                'https://api.codetabs.com/v1/proxy?quest=' // Alternative 4
-            ];
-            
-            // Try each proxy sequentially
-            for (let i = 0; i < proxies.length; i++) {
-                try {
-                    const proxyUrl = proxies[i] + encodeURIComponent(url);
-                    console.log(`Trying proxy ${i + 1}: ${proxies[i].split('/')[2]}`);
-                    
-                    const response = await fetch(proxyUrl, {
-                        signal: AbortSignal.timeout(8000) // 8 second timeout
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Proxy ${i + 1} failed with status: ${response.status}`);
-                    }
-                    
-                    const data = await response.text();
-                    console.log(`✓ Proxy ${i + 1} succeeded`);
-                    return data;
-                    
-                } catch (error) {
-                    console.warn(`Proxy ${i + 1} failed:`, error.message);
-                    
-                    // If this is the last proxy, throw the error
-                    if (i === proxies.length - 1) {
-                        throw new Error('All proxies failed: ' + error.message);
-                    }
-                    
-                    // Wait a moment before trying the next proxy
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-            }
-        }
-
-        // UPDATED YOUTUBE FEED FETCH FUNCTION
-        (async () => {
-            const feedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCzWlkdjmrpyr4EHL2-6QTJQ";
-
+        
+        for (let i = 0; i < proxies.length; i++) {
             try {
-                // Use the proxy fallback function
-                const xmlText = await fetchWithProxyFallback(feedUrl);
+                const proxyUrl = proxies[i] + encodeURIComponent(url);
+                console.log(`Trying proxy ${i + 1}: ${proxies[i].split('/')[2]}`);
                 
-                // Parse the XML response
-                let finalXmlText = xmlText;
-                
-                // Check if response is JSON (allorigins format)
-                if (xmlText.trim().startsWith('{')) {
-                    try {
-                        const jsonData = JSON.parse(xmlText);
-                        finalXmlText = jsonData.contents || xmlText;
-                    } catch (e) {
-                        console.warn('Failed to parse as JSON, using raw response');
-                    }
-                }
-                
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(finalXmlText, "application/xml");
-                
-                // Check if parsing was successful
-                const parserError = xml.querySelector('parsererror');
-                if (parserError) {
-                    console.error('XML parsing error:', parserError.textContent);
-                    throw new Error('Failed to parse XML feed');
-                }
-
-                const entries = [...xml.getElementsByTagName("entry")];
-                
-                // Clear existing content
-                document.getElementById("shorts").innerHTML = "";
-                document.getElementById("video").innerHTML = "";
-                
-                // Arrays to store filtered content
-                const shorts = [];
-                const fullVideos = [];
-                
-                // Process all entries to categorize them
-                for (let entry of entries) {
-                    const videoIdEl = entry.getElementsByTagNameNS(
-                        "http://www.youtube.com/xml/schemas/2015",
-                        "videoId"
-                    )[0];
-                    
-                    if (!videoIdEl) continue;
-                    
-                    const videoId = videoIdEl.textContent;
-                    const descriptionEl = entry.getElementsByTagNameNS(
-                        "http://search.yahoo.com/mrss/",
-                        "description"
-                    )[0];
-                    
-                    const description = descriptionEl ? descriptionEl.textContent : "";
-                    const titleEl = entry.getElementsByTagName("title")[0];
-                    const title = titleEl ? titleEl.textContent : "";
-                    
-                    // Check if it's a short by looking for hashtags in description
-                    const hasHashtags = /#\w+/i.test(description);
-                    
-                    const videoData = {
-                        id: videoId,
-                        title: title,
-                        description: description,
-                        entry: entry
-                    };
-                    
-                    if (hasHashtags) {
-                        shorts.push(videoData);
-                    } else {
-                        fullVideos.push(videoData);
-                    }
-                }
-                
-                // Load the 2 most recent shorts
-                const shortsContainer = document.getElementById("shorts");
-                const shortsToLoad = shorts.slice(0, 2);
-                
-                // Add CSS to make shorts display next to each other
-                shortsContainer.style.display = "flex";
-                shortsContainer.style.gap = "20px";
-                shortsContainer.style.justifyContent = "center";
-                shortsContainer.style.flexWrap = "wrap";
-                
-                shortsToLoad.forEach((short, index) => {
-                    const container = document.createElement("div");
-                    container.className = "short-container";
-                    
-                    const iframe = document.createElement("iframe");
-                    iframe.width = "315";
-                    iframe.height = "560";
-                    iframe.src = `https://www.youtube.com/embed/${short.id}?rel=0&modestbranding=1`;
-                    iframe.frameBorder = "0";
-                    iframe.allow =
-                        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                    iframe.allowFullscreen = true;
-
-                    iframe.onerror = () => {
-                        console.warn(`Short ${short.id} could not be embedded.`);
-                        iframe.remove();
-                    };
-                    
-                    container.appendChild(iframe);
-                    shortsContainer.appendChild(container);
+                const response = await fetch(proxyUrl, {
+                    signal: AbortSignal.timeout(8000)
                 });
                 
-                // Load the 1 most recent full-length video
-                const videoContainer = document.getElementById("video");
-                if (fullVideos.length > 0) {
-                    const video = fullVideos[0];
-                    const container = document.createElement("div");
-                    container.className = "video-container";
-                    
-                    const iframe = document.createElement("iframe");
-                    iframe.src = `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
-                    iframe.frameBorder = "0";
-                    iframe.allow =
-                        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                    iframe.allowFullscreen = true;
-
-                    iframe.onerror = () => {
-                        console.warn(`Video ${video.id} could not be embedded.`);
-                        iframe.remove();
-                    };
-                    
-                    container.appendChild(iframe);
-                    videoContainer.appendChild(container);
-                } else {
-                    videoContainer.innerHTML = "<p>No full-length videos found.</p>";
+                if (!response.ok) {
+                    throw new Error(`Proxy ${i + 1} failed with status: ${response.status}`);
                 }
                 
-                // Optional: Log what we found
-                console.log(`Found ${shorts.length} shorts and ${fullVideos.length} full-length videos`);
+                const data = await response.text();
+                console.log(`✓ Proxy ${i + 1} succeeded`);
+                return data;
                 
             } catch (error) {
-                console.error('Error fetching YouTube feed:', error);
+                console.warn(`Proxy ${i + 1} failed:`, error.message);
                 
-                // Display error message to user
-                document.getElementById("shorts").innerHTML = 
-                    `<p style="color: var(--primary-color); text-align: center; padding: 20px;">
-                        Unable to load videos. Please try refreshing the page.
-                        <br><small>Error: ${error.message}</small>
-                    </p>`;
-                document.getElementById("video").innerHTML = "";
+                if (i === proxies.length - 1) {
+                    throw new Error('All proxies failed: ' + error.message);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
-        })();
-    </script>
+        }
+    }
+
+    (async () => {
+        const feedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCzWlkdjmrpyr4EHL2-6QTJQ";
+
+        try {
+            const xmlText = await fetchWithProxyFallback(feedUrl);
+            
+            let finalXmlText = xmlText;
+            
+            if (xmlText.trim().startsWith('{')) {
+                try {
+                    const jsonData = JSON.parse(xmlText);
+                    finalXmlText = jsonData.contents || xmlText;
+                } catch (e) {
+                    console.warn('Failed to parse as JSON, using raw response');
+                }
+            }
+            
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(finalXmlText, "application/xml");
+            
+            const parserError = xml.querySelector('parsererror');
+            if (parserError) {
+                console.error('XML parsing error:', parserError.textContent);
+                throw new Error('Failed to parse XML feed');
+            }
+
+            const entries = [...xml.getElementsByTagName("entry")];
+            
+            document.getElementById("shorts").innerHTML = "";
+            document.getElementById("video").innerHTML = "";
+            
+            const shorts = [];
+            const fullVideos = [];
+            
+            for (let entry of entries) {
+                const videoIdEl = entry.getElementsByTagNameNS(
+                    "http://www.youtube.com/xml/schemas/2015",
+                    "videoId"
+                )[0];
+                
+                if (!videoIdEl) continue;
+                
+                const videoId = videoIdEl.textContent;
+                const descriptionEl = entry.getElementsByTagNameNS(
+                    "http://search.yahoo.com/mrss/",
+                    "description"
+                )[0];
+                
+                const description = descriptionEl ? descriptionEl.textContent : "";
+                const titleEl = entry.getElementsByTagName("title")[0];
+                const title = titleEl ? titleEl.textContent : "";
+                
+                const hasHashtags = /#\w+/i.test(description);
+                
+                const videoData = {
+                    id: videoId,
+                    title: title,
+                    description: description,
+                    entry: entry
+                };
+                
+                if (hasHashtags) {
+                    shorts.push(videoData);
+                } else {
+                    fullVideos.push(videoData);
+                }
+            }
+            
+            const shortsContainer = document.getElementById("shorts");
+            const shortsToLoad = shorts.slice(0, 2);
+            
+            shortsContainer.style.display = "flex";
+            shortsContainer.style.gap = "20px";
+            shortsContainer.style.justifyContent = "center";
+            shortsContainer.style.flexWrap = "wrap";
+            
+            shortsToLoad.forEach((short, index) => {
+                const container = document.createElement("div");
+                container.className = "short-container";
+                
+                const iframe = document.createElement("iframe");
+                iframe.width = "315";
+                iframe.height = "560";
+                iframe.src = `https://www.youtube.com/embed/${short.id}?rel=0&modestbranding=1`;
+                iframe.frameBorder = "0";
+                iframe.allow =
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+
+                iframe.onerror = () => {
+                    console.warn(`Short ${short.id} could not be embedded.`);
+                    iframe.remove();
+                };
+                
+                container.appendChild(iframe);
+                shortsContainer.appendChild(container);
+            });
+            
+            const videoContainer = document.getElementById("video");
+            if (fullVideos.length > 0) {
+                const video = fullVideos[0];
+                const container = document.createElement("div");
+                container.className = "video-container";
+                
+                const iframe = document.createElement("iframe");
+                iframe.src = `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
+                iframe.frameBorder = "0";
+                iframe.allow =
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+
+                iframe.onerror = () => {
+                    console.warn(`Video ${video.id} could not be embedded.`);
+                    iframe.remove();
+                };
+                
+                container.appendChild(iframe);
+                videoContainer.appendChild(container);
+            } else {
+                videoContainer.innerHTML = "<p>No full-length videos found.</p>";
+            }
+            
+            console.log(`Found ${shorts.length} shorts and ${fullVideos.length} full-length videos`);
+            
+        } catch (error) {
+            console.error('Error fetching YouTube feed:', error);
+            
+            document.getElementById("shorts").innerHTML = 
+                `<p style="color: var(--primary-color); text-align: center; padding: 20px;">
+                    Unable to load videos. Please try refreshing the page.
+                    <br><small>Error: ${error.message}</small>
+                </p>`;
+            document.getElementById("video").innerHTML = "";
+        }
+    })();
+
+
+// Double-click/tap to skip boot sequence and show main content immediately
+let clickCount = 0;
+let clickTimer = null;
+const SKIP_DELAY = 300; // Time window for double click/tap (ms)
+
+function handleDoubleClickSkip() {
+    // Only allow skip if login screen is still visible
+    const loginScreen = document.getElementById('loginScreen');
+    if (!loginScreen || loginScreen.style.visibility === 'hidden') return;
+    
+    console.log('Double click detected - skipping to main content');
+    
+    // Stop all sounds
+    stopAllTypingSounds();
+    
+    // Clear all timeouts (crude but effective)
+    for (let i = 1; i < 9999; i++) {
+        clearTimeout(i);
+        clearInterval(i);
+    }
+    
+    // Hide login screen immediately
+    loginScreen.style.transition = 'opacity 0.3s ease';
+    loginScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        loginScreen.style.visibility = 'hidden';
+        loginScreen.style.display = 'none'; // Ensure it's gone
+        
+        // Show main content
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.transition = 'opacity 0.5s ease';
+            mainContent.style.opacity = '1';
+        }
+        
+        // Show control panel
+        const controlPanel = document.querySelector('.control-panel');
+        if (controlPanel) {
+            controlPanel.classList.add('visible');
+        }
+        
+        // Start radio
+        setTimeout(startRadio, 500);
+        
+    }, 300);
+}
+
+// Add event listeners for double click/tap
+document.addEventListener('DOMContentLoaded', () => {
+    const loginScreen = document.getElementById('loginScreen');
+    
+    if (loginScreen) {
+        // For desktop (double click)
+        loginScreen.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDoubleClickSkip();
+        });
+
+        // For mobile (double tap)
+        loginScreen.addEventListener('touchstart', (e) => {
+            clickCount++;
+            
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    clickCount = 0;
+                }, SKIP_DELAY);
+            } else if (clickCount === 2) {
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+                clickCount = 0;
+                e.preventDefault();
+                e.stopPropagation();
+                handleDoubleClickSkip();
+            }
+        }, { passive: false });
+    }
+});
+    
+
+// System Time Update - Make it persistent and restart if cleared
+let timeInterval = null;
+
+function updateSystemTime() {
+    const now = new Date();
+    const timeElement = document.getElementById('systemTime');
+    if (timeElement) {
+        // Format: YYYY-MM-DD HH:MM:SS
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        timeElement.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+}
+
+// Function to start/restart the time interval
+function startTimeUpdates() {
+    if (timeInterval) {
+        clearInterval(timeInterval);
+    }
+    updateSystemTime(); // Update immediately
+    timeInterval = setInterval(updateSystemTime, 1000);
+}
+
+// Start time updates
+startTimeUpdates();
+
+// Make sure time continues after double-click skip
+const originalHandleDoubleClickSkip = handleDoubleClickSkip;
+handleDoubleClickSkip = function() {
+    // Call the original function
+    originalHandleDoubleClickSkip();
+    
+    // Restart time updates after a short delay (they might have been cleared)
+    setTimeout(() => {
+        startTimeUpdates();
+    }, 500);
+};
+
+
+// ============================================================================
+// SIMPLE ACHIEVEMENT SYSTEM
+// ============================================================================
+
+const achievements = {
+    firstVisit: { name: "VAULT DWELLER", desc: "Entered the terminal", icon: "🏛️" },
+    radioFan: { name: "RADIO ENTHUSIAST", desc: "Changed stations 5 times", icon: "📻", requirement: 5 },
+    themeToggler: { name: "CHAMELEON", desc: "Switched color themes", icon: "🎨" },
+    nukeTriggered: { name: "NUCLEAR OPTION", desc: "Launched a nuke", icon: "☢️" },
+    allLinks: { name: "SOCIAL BUTTERFLY", desc: "Clicked all social links", icon: "🦋", requirement: 3 },
+    completionist: { name: "COMPLETIONIST", desc: "Unlocked every other achievement", icon: "🏆", hidden: true }
+};
+
+// Simple queue system
+let achievementQueue = [];
+let showingAchievement = false;
+
+function showNextAchievement() {
+    if (achievementQueue.length === 0) {
+        showingAchievement = false;
+        return;
+    }
+    
+    showingAchievement = true;
+    const achievement = achievementQueue.shift();
+    
+    const popup = document.createElement('div');
+    popup.className = 'achievement-popup';
+    popup.innerHTML = `
+        <div class="achievement-content">
+            <div class="achievement-icon">${achievement.icon}</div>
+            <strong>⭐ ACHIEVEMENT UNLOCKED ⭐</strong><br>
+            <div style="font-size: 1.2em; margin: 10px 0;">${achievement.name}</div>
+            <div style="font-size: 0.8em;">${achievement.desc}</div>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    soundEffects.play('click');
+    
+    setTimeout(() => {
+        popup.style.transition = 'opacity 0.5s ease';
+        popup.style.opacity = '0';
+        
+        setTimeout(() => {
+            popup.remove();
+            showNextAchievement();
+        }, 500);
+    }, 2500);
+}
+
+// Storage functions
+function getAchievementData() {
+    return JSON.parse(localStorage.getItem('achievements') || '{}');
+}
+
+function saveAchievementData(data) {
+    localStorage.setItem('achievements', JSON.stringify(data));
+}
+
+function isUnlocked(id) {
+    return getAchievementData()[id] === true;
+}
+
+function unlockAchievement(id) {
+    if (isUnlocked(id)) return;
+    
+    const data = getAchievementData();
+    data[id] = true;
+    saveAchievementData(data);
+    
+    console.log(`🏆 Unlocked: ${achievements[id].name}`);
+    achievementQueue.push(achievements[id]);
+    
+    if (!showingAchievement) showNextAchievement();
+    
+    // Check for completionist
+    checkCompletionist();
+}
+
+function incrementProgress(key, targetId, required) {
+    const data = getAchievementData();
+    const progressKey = `${targetId}_progress`;
+    data[progressKey] = (data[progressKey] || 0) + 1;
+    saveAchievementData(data);
+    
+    console.log(`Progress: ${achievements[targetId].name} ${data[progressKey]}/${required}`);
+    
+    if (data[progressKey] >= required) {
+        unlockAchievement(targetId);
+    }
+}
+
+function checkCompletionist() {
+    if (isUnlocked('completionist')) return;
+    
+    const data = getAchievementData();
+    let unlocked = 0;
+    let total = 0;
+    
+    for (let id in achievements) {
+        if (id !== 'completionist') {
+            total++;
+            if (data[id]) unlocked++;
+        }
+    }
+    
+    if (unlocked === total && total > 0) {
+        unlockAchievement('completionist');
+    }
+}
+
+// Modal functions
+function showAchievementsModal() {
+    soundEffects.play('click');
+    
+    const modal = document.getElementById('achievementsModal');
+    const overlay = document.getElementById('modalOverlay');
+    const grid = document.getElementById('achievementsGrid');
+    const stats = document.getElementById('achievementsStats');
+    
+    const data = getAchievementData();
+    let unlocked = 0;
+    let total = 0;
+    
+    for (let id in achievements) {
+        if (id !== 'completionist') {
+            total++;
+            if (data[id]) unlocked++;
+        }
+    }
+    
+    stats.textContent = `${unlocked} / ${total} UNLOCKED (${Math.round(unlocked/total*100)}%)`;
+    
+    grid.innerHTML = '';
+    
+    for (let id in achievements) {
+        const a = achievements[id];
+        const unlocked_status = data[id] || false;
+        
+        if (a.hidden && !unlocked_status) continue;
+        
+        const card = document.createElement('div');
+        card.className = `achievement-card ${unlocked_status ? 'unlocked' : 'locked'}`;
+        
+        let progressHTML = '';
+        if (a.requirement && !unlocked_status) {
+            const progress = data[`${id}_progress`] || 0;
+            progressHTML = `<div class="achievement-card-progress">${progress}/${a.requirement}</div>`;
+        }
+        
+        card.innerHTML = `
+            ${!unlocked_status ? '<div class="achievement-locked-icon">🔒</div>' : ''}
+            <div class="achievement-card-icon">${a.icon}</div>
+            <div class="achievement-card-name">${a.name}</div>
+            <div class="achievement-card-desc">${a.desc}</div>
+            ${progressHTML}
+        `;
+        
+        grid.appendChild(card);
+    }
+    
+    overlay.classList.add('active');
+    modal.classList.add('active');
+}
+
+function hideAchievementsModal() {
+    soundEffects.play('click');
+    document.getElementById('achievementsModal').classList.remove('active');
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// Event listeners
+document.getElementById('achievementsToggle').addEventListener('click', showAchievementsModal);
+document.getElementById('closeAchievements').addEventListener('click', hideAchievementsModal);
+document.getElementById('modalOverlay').addEventListener('click', hideAchievementsModal);
+
+// Initialize storage
+if (!localStorage.getItem('achievements')) {
+    localStorage.setItem('achievements', JSON.stringify({}));
+}
+
+// Hook into existing functions
+const originalHandleEnterClickFn = handleEnterClick;
+handleEnterClick = function() {
+    originalHandleEnterClickFn();
+    setTimeout(() => unlockAchievement('firstVisit'), 1000);
+};
+
+themeToggle.addEventListener('click', () => {
+    setTimeout(() => unlockAchievement('themeToggler'), 100);
+});
+
+// Track social clicks
+let socialClickCount = 0;
+document.querySelectorAll('.link-container .link').forEach(link => {
+    link.addEventListener('click', () => {
+        socialClickCount++;
+        if (socialClickCount >= 3) unlockAchievement('allLinks');
+        else incrementProgress('allLinks', 'allLinks', 3);
+    });
+});
+
+// Track radio changes
+let radioChangeCount = 0;
+const originalToggleStationFn = toggleStation;
+toggleStation = function(stationKey) {
+    originalToggleStationFn(stationKey);
+    radioChangeCount++;
+    if (radioChangeCount >= 5) unlockAchievement('radioFan');
+    else incrementProgress('radioFan', 'radioFan', 5);
+};
+
+// Nuke trigger
+document.addEventListener('nukeTriggered', () => unlockAchievement('nukeTriggered'));
+if (window.launchNuke) {
+    const originalLaunchNuke = window.launchNuke;
+    window.launchNuke = function() {
+        originalLaunchNuke();
+        unlockAchievement('nukeTriggered');
+    };
+}
+
+// Debug
+window.checkAchievements = () => console.log(getAchievementData());
+
+</script>
 
 </body>
 </html>
