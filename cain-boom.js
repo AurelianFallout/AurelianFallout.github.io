@@ -1,52 +1,112 @@
-// Cain Boom — type "boom" to play TBLCRD_NE_00–30 at 10fps, centered on page
+// Cain Boom — type "boom" to play TBLCRD_NE_00–30 at 10fps
 
 (function () {
     const FPS = 10;
     const FRAME_MS = 1000 / FPS;
-    
-    // FIX: Use relative paths that work both locally and when published
-    // Try multiple possible paths - the first one that works will be used
-    const FRAME_PATHS = [
-        'TBLCRD_NE_',                    // Same directory as HTML
-        'Assets/images/Tim/TBLCRD_NE_',   // Original path
-        'images/Tim/TBLCRD_NE_',          // Alternative
-        'Tim/TBLCRD_NE_',                  // Another alternative
-        '/TBLCRD_NE_'                       // Root relative
-    ];
-    
-    let frames = [];
     let active = false;
-    let selectedBasePath = null;
+    let frames = [];
+    let currentFrame = 0;
 
-    // Test which path works
-    function findWorkingPath() {
+    function preloadAllFrames() {
         return new Promise((resolve) => {
-            let pathIndex = 0;
+            let loadedCount = 0;
+            frames = [];
             
-            function testNextPath() {
-                if (pathIndex >= FRAME_PATHS.length) {
-                    console.warn('⚠ No working path found for frames');
-                    resolve(null);
-                    return;
-                }
-                
-                const testPath = FRAME_PATHS[pathIndex] + '00.png';
-                const img = new Image();
-                
-                img.onload = () => {
-                    console.log(`✓ Found working path: ${FRAME_PATHS[pathIndex]}`);
-                    resolve(FRAME_PATHS[pathIndex]);
-                };
-                
-                img.onerror = () => {
-                    pathIndex++;
+            // Try different possible paths for GitHub Pages
+            const paths = [
+                '',  // root
+                '/', // root with slash
+                '/Assets/images/Tim/',
+                '/images/Tim/',
+                'Assets/images/Tim/',
+                'images/Tim/',
+                'Tim/'
+            ];
+            
+            // We'll test which path works by trying to load frame 00
+            function findWorkingPath() {
+                return new Promise((resolvePath) => {
+                    let pathIndex = 0;
+                    
+                    function testNextPath() {
+                        if (pathIndex >= paths.length) {
+                            console.warn('No working path found');
+                            resolvePath(''); // fallback to root
+                            return;
+                        }
+                        
+                        const testImg = new Image();
+                        const testPath = paths[pathIndex] + 'TBLCRD_NE_00.png';
+                        
+                        testImg.onload = () => {
+                            console.log(`✓ Found working path: ${paths[pathIndex]}`);
+                            resolvePath(paths[pathIndex]);
+                        };
+                        
+                        testImg.onerror = () => {
+                            console.log(`✗ Path failed: ${paths[pathIndex]}`);
+                            pathIndex++;
+                            testNextPath();
+                        };
+                        
+                        testImg.src = testPath;
+                    }
+                    
                     testNextPath();
-                };
-                
-                img.src = testPath;
+                });
             }
             
-            testNextPath();
+            // Once we find the working path, load all frames
+            findWorkingPath().then(workingPath => {
+                console.log(`Loading frames from: ${workingPath}`);
+                
+                for (let i = 0; i <= 30; i++) {
+                    const frameNum = String(i).padStart(2, '0');
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        loadedCount++;
+                        frames[i] = img;
+                        console.log(`Loaded frame ${i} (${loadedCount}/31)`);
+                        
+                        if (loadedCount === 31) {
+                            console.log('✓ All frames loaded!');
+                            resolve(frames);
+                        }
+                    };
+                    
+                    img.onerror = () => {
+                        console.error(`✗ Failed to load frame ${i}: TBLCRD_NE_${frameNum}.png`);
+                        loadedCount++;
+                        // Create a colored fallback frame so animation still works
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 800;
+                        canvas.height = 600;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Different color for each frame so we can see animation
+                        const hue = (i * 12) % 360;
+                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        ctx.fillRect(0, 0, 800, 600);
+                        
+                        // Frame number
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 48px monospace';
+                        ctx.fillText(`FRAME ${i}`, 200, 300);
+                        
+                        const fallbackImg = new Image();
+                        fallbackImg.src = canvas.toDataURL();
+                        frames[i] = fallbackImg;
+                        
+                        if (loadedCount === 31) {
+                            console.log('✓ All frames loaded (with fallbacks)');
+                            resolve(frames);
+                        }
+                    };
+                    
+                    img.src = workingPath + 'TBLCRD_NE_' + frameNum + '.png';
+                }
+            });
         });
     }
 
@@ -64,120 +124,107 @@
             document.dispatchEvent(event);
         }
 
+        // Create container
+        const container = document.createElement('div');
+        container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        `;
+        
         const img = document.createElement('img');
         img.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 99999;
-            image-rendering: pixelated;
-            pointer-events: none;
-            max-width: 100vw;
-            max-height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
+            image-rendering: pixelated;
         `;
         
-        // Add loading indicator
+        // Add loading text
         const loading = document.createElement('div');
         loading.style.cssText = `
-            position: fixed;
-            top: 50%;
+            position: absolute;
+            bottom: 50px;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             color: #ff0;
             font-family: 'Share Tech Mono', monospace;
-            z-index: 100000;
+            font-size: 14px;
+            text-shadow: 0 0 10px #f00;
         `;
-        loading.textContent = '> LOADING FRAMES... <';
-        document.body.appendChild(loading);
+        loading.textContent = '> LOADING NUKE FRAMES... <';
         
-        document.body.appendChild(img);
+        container.appendChild(img);
+        container.appendChild(loading);
+        document.body.appendChild(container);
 
-        // Find working path then play
-        findWorkingPath().then(basePath => {
-            if (!basePath) {
-                // Fallback - just show a message
-                loading.remove();
-                img.remove();
-                active = false;
-                
-                const msg = document.createElement('div');
-                msg.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: #f00;
-                    font-family: 'Share Tech Mono', monospace;
-                    font-size: 24px;
-                    text-align: center;
-                    z-index: 99999;
-                    background: #000;
-                    padding: 20px;
-                    border: 2px solid #f00;
-                `;
-                msg.innerHTML = '☢️ BOOM! ☢️<br><span style="font-size: 16px;">(frames not found)</span>';
-                document.body.appendChild(msg);
-                setTimeout(() => msg.remove(), 2000);
-                return;
-            }
+        // Preload all frames first, then animate
+        preloadAllFrames().then(loadedFrames => {
+            loading.remove();
             
-            selectedBasePath = basePath;
+            // Show first frame
+            currentFrame = 0;
+            img.src = loadedFrames[0].src;
             
-            // Load all frames
-            let loadedCount = 0;
-            frames = [];
-            
-            for (let i = 0; i <= 30; i++) {
-                const frameNum = String(i).padStart(2, '0');
-                const frameImg = new Image();
-                
-                frameImg.onload = () => {
-                    loadedCount++;
-                    frames[i] = frameImg;
-                    
-                    // Start playing when first frame loads
-                    if (i === 0) {
-                        loading.remove();
-                        img.src = frameImg.src;
-                    }
-                    
-                    // Start animation when all frames loaded or after timeout
-                    if (loadedCount === 31) {
-                        console.log('All frames loaded');
-                    }
-                };
-                
-                frameImg.onerror = () => {
-                    loadedCount++;
-                    console.warn(`Frame ${i} failed to load`);
-                };
-                
-                frameImg.src = basePath + frameNum + '.png';
-            }
-            
-            // Start animation after first frame
-            let i = 1;
+            // Animate through frames
             const interval = setInterval(() => {
-                if (i >= frames.length || !frames[i]) {
+                currentFrame++;
+                
+                if (currentFrame >= loadedFrames.length) {
                     clearInterval(interval);
+                    
+                    // Show completion message
+                    loading.textContent = '> DETONATION COMPLETE <';
+                    loading.style.color = '#f00';
+                    container.appendChild(loading);
+                    
                     setTimeout(() => {
-                        img.remove();
+                        container.remove();
                         active = false;
-                    }, 500);
+                    }, 1500);
+                    
                     return;
                 }
-                img.src = frames[i].src;
-                i++;
+                
+                img.src = loadedFrames[currentFrame].src;
+                
+                // Update progress
+                if (currentFrame === 1) {
+                    const progress = document.createElement('div');
+                    progress.style.cssText = `
+                        position: absolute;
+                        bottom: 50px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        color: #ff0;
+                        font-family: 'Share Tech Mono', monospace;
+                        font-size: 12px;
+                    `;
+                    progress.id = 'nuke-progress';
+                    container.appendChild(progress);
+                }
+                
+                const progress = document.getElementById('nuke-progress');
+                if (progress) {
+                    const percent = Math.floor((currentFrame / loadedFrames.length) * 100);
+                    progress.textContent = `> ${percent}% DETONATED <`;
+                }
+                
             }, FRAME_MS);
         });
     }
 
-    // Konami code style: type "boom"
+    // Type "boom" to trigger
     let buffer = [];
     document.addEventListener('keydown', (e) => {
-        // Don't trigger if typing in input
         const tag = document.activeElement && document.activeElement.tagName;
         if (tag === 'INPUT' || tag === 'TEXTAREA') return;
         
