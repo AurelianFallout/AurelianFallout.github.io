@@ -397,7 +397,7 @@ function triggerNukeAnimation() {
             text-shadow:0 0 8px #ff4400; z-index:99999; pointer-events:none;
             letter-spacing:0.1em;
         `;
-        loader.textContent = '[ LOADING CAIN BOOM... ]';
+        loader.textContent = '';
         document.body.appendChild(loader);
 
         probeFrames(buildFrameList(), (frames) => {
